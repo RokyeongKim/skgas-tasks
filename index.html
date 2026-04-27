@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK가스 과제통합관리 대시보드 '26</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  font-size: 14px;
+}
+.header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  color: white;
+  padding: 20px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.header h1 { font-size: 20px; font-weight: 700; }
+.header .sub { font-size: 12px; opacity: 0.6; margin-top: 3px; }
+.header .updated { font-size: 11px; opacity: 0.5; text-align: right; }
+.main { padding: 20px 32px; max-width: 1440px; margin: 0 auto; }
+.cards-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.card {
+  background: white; border-radius: 10px; padding: 14px 18px;
+  flex: 1; min-width: 100px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  border-left: 4px solid; cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.card:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+.card .n { font-size: 26px; font-weight: 800; line-height: 1; }
+.card .lbl { font-size: 11px; color: #6b7280; margin-top: 4px; font-weight: 500; }
+.c-all { border-color: #1e3a5f; } .c-all .n { color: #1e3a5f; }
+.c-lng { border-color: #2563eb; } .c-lng .n { color: #2563eb; }
+.c-lpg { border-color: #16a34a; } .c-lpg .n { color: #16a34a; }
+.c-trd { border-color: #7c3aed; } .c-trd .n { color: #7c3aed; }
+.c-pwr { border-color: #ea580c; } .c-pwr .n { color: #ea580c; }
+.c-bnk { border-color: #0891b2; } .c-bnk .n { color: #0891b2; }
+.c-etc { border-color: #6b7280; } .c-etc .n { color: #6b7280; }
+.priority-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.pcard {
+  background: white; border-radius: 10px; padding: 12px 16px;
+  flex: 1; min-width: 90px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  text-align: center; cursor: pointer;
+}
+.pcard .pn { font-size: 22px; font-weight: 800; margin: 4px 0; }
+.pcard .plbl { font-size: 10px; color: #9ca3af; }
+.badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; }
+.b4 { background: #fee2e2; color: #dc2626; }
+.b3 { background: #fed7aa; color: #c2410c; }
+.b2 { background: #fef08a; color: #854d0e; }
+.b1 { background: #f3f4f6; color: #6b7280; }
+.bx { background: #f3f4f6; color: #9ca3af; }
+.filter-bar {
+  background: white; border-radius: 10px; padding: 14px 18px;
+  margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.fg { display: flex; align-items: center; gap: 6px; }
+.fg label { font-size: 11px; color: #6b7280; font-weight: 600; white-space: nowrap; }
+.fg select, .fg input[type=text] {
+  border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px;
+  font-size: 12px; outline: none; color: #1a1a2e; background: #fafafa; font-family: inherit;
+}
+.fg select:focus, .fg input:focus { border-color: #2563eb; background: white; }
+.btn-reset {
+  background: #f3f4f6; border: none; border-radius: 6px;
+  padding: 6px 14px; font-size: 12px; cursor: pointer; color: #6b7280; font-family: inherit;
+}
+.btn-reset:hover { background: #e5e7eb; }
+.filter-sep { width: 1px; height: 24px; background: #e5e7eb; }
+.result-count { margin-left: auto; font-size: 12px; color: #9ca3af; font-weight: 500; }
+.tabs { display: flex; gap: 2px; margin-bottom: -1px; position: relative; z-index: 1; }
+.tab {
+  padding: 9px 20px; border-radius: 8px 8px 0 0; background: #e5e7eb;
+  border: none; cursor: pointer; font-size: 12px; font-weight: 500;
+  color: #6b7280; font-family: inherit;
+}
+.tab:hover { background: #d1d5db; }
+.tab.active { background: white; color: #1a1a2e; font-weight: 700; }
+.tab .cnt {
+  display: inline-block; background: #e5e7eb; border-radius: 10px;
+  padding: 1px 7px; font-size: 10px; margin-left: 4px;
+}
+.tab.active .cnt { background: #f3f4f6; }
+.table-wrap {
+  background: white; border-radius: 0 10px 10px 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07); overflow: auto;
+}
+table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+thead tr:first-child { border-bottom: 1px solid #e5e7eb; }
+thead tr:last-child { border-bottom: 2px solid #e5e7eb; }
+th {
+  background: #f8fafc; padding: 6px 12px; text-align: left;
+  font-size: 11px; color: #6b7280; font-weight: 700; white-space: nowrap;
+}
+th.meetings-header {
+  text-align: center; border-left: 1px solid #e5e7eb;
+  background: #f1f5f9; color: #4b5563; letter-spacing: 0.05em;
+}
+th.meeting-sub { text-align: center; border-left: 1px solid #f3f4f6; }
+td {
+  padding: 6px 12px; border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle; white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8fafc; }
+.td-num { color: #c4c9d4; font-size: 11px; width: 30px; }
+.td-name {
+  font-weight: 500; font-size: 12px; color: #1d4ed8;
+  cursor: pointer; max-width: 240px;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.td-name:hover { text-decoration: underline; color: #1e40af; }
+.td-name.sub { font-weight: 400; font-size: 11px; color: #6b7280; cursor: default; max-width: 230px; }
+.td-name.sub:hover { text-decoration: none; color: #6b7280; }
+.td-dept { font-size: 11px; color: #374151; white-space: nowrap; }
+.td-check { text-align: center; border-left: 1px solid #f3f4f6; padding: 6px 8px; }
+.stag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.s-LNG     { background: #dbeafe; color: #1d4ed8; }
+.s-LPG     { background: #dcfce7; color: #15803d; }
+.s-Trading { background: #ede9fe; color: #6d28d9; }
+.s-발전    { background: #ffedd5; color: #c2410c; }
+.s-벙커링  { background: #cffafe; color: #0e7490; }
+.s-기타    { background: #f3f4f6; color: #4b5563; }
+.obdg { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.sub-row td { background: #fafafa; }
+.sub-arrow { color: #9ca3af; margin-right: 4px; }
+.no-results { text-align: center; padding: 48px 20px; color: #9ca3af; font-size: 13px; }
+/* ── Recent Update 열 ── */
+th.update-header {
+  border-left: 1px solid #e5e7eb; background: #fffbeb;
+  color: #92400e; white-space: nowrap; text-align: center;
+}
+th.update-sub {
+  background: #fffbeb; border-left: 1px solid #fef3c7;
+  text-align: left; color: #b45309;
+}
+.td-upd-date {
+  border-left: 1px solid #f3f4f6; width: 90px;
+  font-size: 11px; color: #b45309; font-weight: 600;
+  white-space: nowrap; vertical-align: middle;
+}
+.td-upd-text {
+  font-size: 12px; color: #374151; max-width: 200px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  vertical-align: middle;
+}
+.upd-dot {
+  display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: #f59e0b; margin-right: 5px; vertical-align: middle; flex-shrink: 0;
+}
+/* 패널 내 업데이트 블록 */
+.upd-block {
+  background: #fffbeb; border-left: 3px solid #f59e0b;
+  padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 8px;
+}
+.upd-block-date { font-size: 10px; color: #b45309; font-weight: 700; margin-bottom: 5px; }
+.upd-block-text { font-size: 13px; color: #374151; line-height: 1.65; }
+.upd-block-source { font-size: 10px; color: #9ca3af; margin-top: 6px; }
+
+/* ── 슬라이드 패널 ── */
+.panel-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.25); z-index: 1000;
+}
+.panel-overlay.open { display: block; }
+.panel {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 92vw;
+  background: white; overflow-y: auto; padding: 28px 28px 40px;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.13);
+  transform: translateX(100%); transition: transform 0.22s ease;
+}
+.panel-overlay.open .panel { transform: translateX(0); }
+.panel-close {
+  float: right; background: none; border: none; font-size: 18px;
+  cursor: pointer; color: #9ca3af; padding: 2px 6px; border-radius: 4px;
+  font-family: inherit; line-height: 1;
+}
+.panel-close:hover { background: #f3f4f6; color: #374151; }
+.panel-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.panel-title { font-size: 17px; font-weight: 800; color: #0f172a; line-height: 1.35; margin-bottom: 6px; }
+.panel-meetings { font-size: 11px; color: #9ca3af; margin-bottom: 18px; }
+.panel-meetings span { color: #374151; font-weight: 600; }
+.psec { margin-top: 20px; }
+.psec h4 {
+  font-size: 10px; font-weight: 700; color: #9ca3af;
+  text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+  padding-bottom: 5px; border-bottom: 1px solid #f3f4f6;
+}
+.psec p { font-size: 13px; line-height: 1.7; color: #374151; }
+.psec ul { padding-left: 16px; }
+.psec ul li { font-size: 13px; line-height: 1.7; color: #374151; margin-bottom: 2px; }
+.ms-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.ms-table td { padding: 6px 8px; border-bottom: 1px solid #f3f4f6; color: #374151; }
+.ms-table td:first-child { font-weight: 700; color: #2563eb; width: 30px; white-space: nowrap; }
+.rel-tag {
+  display: inline-block; background: #f0f4ff; border: 1px solid #c7d6ff;
+  border-radius: 6px; padding: 3px 10px; font-size: 11px; color: #3b5bdb;
+  margin: 3px 2px; cursor: pointer;
+}
+.rel-tag:hover { background: #dbe4ff; }
+.no-detail { color: #9ca3af; font-size: 13px; padding: 24px 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>SK가스 과제통합관리 대시보드</h1>
+    <div class="sub">'26년 중점추진과제 전체 현황 — 4개 회의체 통합</div>
+  </div>
+  <div class="updated">최종 업데이트<br>2026-04-27</div>
+</div>
+
+<div class="main">
+  <div class="cards-row" id="bizCards"></div>
+  <div class="priority-row" id="prioCards"></div>
+  <div class="filter-bar">
+    <div class="fg">
+      <label>🔍 과제 검색</label>
+      <input type="text" id="q" placeholder="과제명..." style="width:180px">
+    </div>
+    <div class="filter-sep"></div>
+    <div class="fg">
+      <label>사업</label>
+      <select id="fBiz">
+        <option value="">전체</option>
+        <option>LNG</option><option>LPG</option><option>Trading</option>
+        <option>발전</option><option>벙커링</option><option>기타</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>담당조직</label>
+      <select id="fDiv"><option value="">전체</option></select>
+    </div>
+    <div class="fg">
+      <label>중첩수</label>
+      <select id="fOvlp">
+        <option value="">전체</option>
+        <option value="4">4중첩 — 최우선</option>
+        <option value="3">3중첩 — 중요</option>
+        <option value="2">2중첩 — 모니터링</option>
+        <option value="1">1중첩 — 본부 관리</option>
+      </select>
+    </div>
+    <button class="btn-reset" onclick="resetAll()">↺ 초기화</button>
+    <div class="result-count" id="rCount"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="all"      onclick="setTab(this)">전체 과제      <span class="cnt" id="cnt-all"></span></button>
+    <button class="tab"        data-tab="progress"  onclick="setTab(this)">Progress 미팅  <span class="cnt" id="cnt-progress"></span></button>
+    <button class="tab"        data-tab="happiness" onclick="setTab(this)">행복경영캔미팅 <span class="cnt" id="cnt-happiness"></span></button>
+    <button class="tab"        data-tab="cteam"    onclick="setTab(this)">C-team Weekly  <span class="cnt" id="cnt-cteam"></span></button>
+    <button class="tab"        data-tab="kpi"      onclick="setTab(this)">KPI            <span class="cnt" id="cnt-kpi"></span></button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" style="width:36px">#</th>
+          <th rowspan="2">과제명</th>
+          <th rowspan="2">사업</th>
+          <th rowspan="2">담당조직</th>
+          <th rowspan="2">중첩수</th>
+          <th class="meetings-header" colspan="4">회의체</th>
+          <th class="update-header" colspan="2">Recent Update</th>
+        </tr>
+        <tr>
+          <th class="meeting-sub">Progress</th>
+          <th class="meeting-sub">행복경영</th>
+          <th class="meeting-sub">C-team</th>
+          <th class="meeting-sub">KPI</th>
+          <th class="update-sub" style="width:90px">일자</th>
+          <th class="update-sub" style="width:200px">내용</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="no-results" id="noRes" style="display:none">검색 결과가 없습니다.</div>
+  </div>
+</div>
+
+<!-- 슬라이드 패널 -->
+<div class="panel-overlay" id="panelOverlay" onclick="handleOverlayClick(event)">
+  <div class="panel" id="panel">
+    <div id="panelContent"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  TASK DATA
+// ══════════════════════════════════════════════════════════════
+const TASKS = [
+  // ── LNG · G&P본부 ───────────────────────────────────────────
+  { name:"LNG 사업수익 개선 Optionality",            사업:"LNG",     조직:"G&P본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"LNG 신규수요 개발",                        사업:"LNG",     조직:"G&P본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"LNG Operation 최적화 EPC",                사업:"LNG",     조직:"G&P본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"美ESS 롯데SK에너루트",                     사업:"LNG",     조직:"G&P본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"KAM 통한 Value 창출",                     사업:"LNG",     조직:"G&P본부",       중첩:3,  p:0,h:1,c:1,k:1 },
+  { name:"에탄사업 제도개선 CEC 공동투자",            사업:"LNG",     조직:"G&P본부",       중첩:3,  p:0,h:1,c:1,k:1 },
+  { name:"GP Value Chain 확장",                     사업:"LNG",     조직:"G&P본부",       중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"Raven PF Closing",                        사업:"LNG",     조직:"G&P본부",       중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"LIC TUA 체결",                            사업:"LNG",     조직:"G&P본부",       중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"Ensenada Term 공급 계약",                 사업:"LNG",     조직:"G&P본부",       중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"에탄 사업 FID 신호 조기 확보",              사업:"LNG",     조직:"Trading본부",   중첩:1,  p:0,h:0,c:1,k:0 },
+  // ── LNG · 기술인프라본부 ────────────────────────────────────
+  { name:"CEC 최적 EPC 운영",                       사업:"LNG",     조직:"기술인프라본부", 중첩:4,  p:1,h:1,c:1,k:1 },
+  // ── LNG · 사업지원단 ────────────────────────────────────────
+  { name:"KOGAS 환상망 연결",                       사업:"LNG",     조직:"사업지원단",     중첩:3,  p:1,h:0,c:1,k:1 },
+  // ── LPG · Eco Energy본부 ────────────────────────────────────
+  { name:"프로판 Biz Re-Design",                    사업:"LPG",     조직:"Eco Energy본부", 중첩:4, p:1,h:1,c:1,k:1 },
+  { name:"Autogas 확장전략 실행",                    사업:"LPG",     조직:"Eco Energy본부", 중첩:4, p:1,h:1,c:1,k:1 },
+  { name:"TSP Biz 모델업그레이드 LPG 신규수요 개발",  사업:"LPG",     조직:"Eco Energy본부", 중첩:4, p:1,h:1,c:1,k:1 },
+  { name:"교환 Scheme 변경",                        사업:"LPG",     조직:"Eco Energy본부", 중첩:4, p:1,h:1,c:1,k:1 },
+  { name:"AI 통합 SCM 마케팅 Solution",             사업:"LPG",     조직:"Eco Energy본부", 중첩:1, p:0,h:0,c:0,k:1 },
+  // ── LPG · 사업지원단 ────────────────────────────────────────
+  { name:"Autogas 시장 방어",                       사업:"LPG",     조직:"사업지원단",     중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"안전관리 강화 LPG",                       사업:"LPG",     조직:"사업지원단",     중첩:1,  p:0,h:0,c:0,k:1 },
+  // ── LPG · Trading본부 ───────────────────────────────────────
+  { name:"안정적 소싱 포트폴리오 Index Hedge",        사업:"LPG",     조직:"Trading본부",   중첩:3,  p:1,h:0,c:1,k:1 },
+  // ── Trading · Trading본부 ───────────────────────────────────
+  { name:"사업이익 극대화",                          사업:"Trading", 조직:"Trading본부",   중첩:-1, p:1,h:0,c:0,k:1 },
+  { name:"북미 Origination 확장",                   사업:"Trading", 조직:"Trading본부",   중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"하와이 LPG공급사업 고정화",                 사업:"Trading", 조직:"Trading본부",   중첩:-1, p:1,h:0,c:0,k:0, sub:true },
+  { name:"서부 멕시코 시장 진출",                     사업:"Trading", 조직:"Trading본부",   중첩:-1, p:1,h:0,c:0,k:0, sub:true },
+  { name:"서부 캐나다 물량 추가 소싱",                 사업:"Trading", 조직:"Trading본부",   중첩:-1, p:1,h:0,c:0,k:0, sub:true },
+  { name:"PDH SD 고려 MB 최적 대응",                 사업:"Trading", 조직:"Trading본부",   중첩:3,  p:0,h:1,c:1,k:1 },
+  { name:"선복 운영 역량 고도화",                    사업:"Trading", 조직:"Trading본부",   중첩:2,  p:0,h:0,c:1,k:1 },
+  { name:"Aramco CP 계약 최적화",                   사업:"Trading", 조직:"Trading본부",   중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"서부 멕시코 Term 공급계약",                 사업:"Trading", 조직:"Trading본부",   중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"하와이 LPG 수출",                         사업:"Trading", 조직:"Trading본부",   중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"Contango Play",                           사업:"Trading", 조직:"Trading본부",   중첩:1,  p:0,h:0,c:1,k:0 },
+  { name:"AI Transformation Trading DB 지능화",     사업:"Trading", 조직:"Trading본부",   중첩:1,  p:0,h:0,c:0,k:1 },
+  // ── 발전 · UGPS ─────────────────────────────────────────────
+  { name:"PPA 준비",                                사업:"발전",    조직:"UGPS",          중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"손익목표 달성",                            사업:"발전",    조직:"UGPS",          중첩:2,  p:1,h:0,c:0,k:1 },
+  { name:"발전사업 Option 개발 차액계약",              사업:"발전",    조직:"UGPS",          중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"O/I 실행으로 추가 수익/원가절감",            사업:"발전",    조직:"UGPS",          중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"SHE 실행력 강화",                          사업:"발전",    조직:"UGPS",          중첩:3,  p:1,h:1,c:0,k:1 },
+  // ── 발전 · 사업지원단·기술인프라 ────────────────────────────
+  { name:"울산 AI DC 전력공급 솔루션 확보",            사업:"발전",    조직:"사업지원단",     중첩:-1, p:1,h:0,c:1,k:0 },
+  { name:"울산 데이터인터파크 냉열냉동",              사업:"발전",    조직:"기술인프라본부", 중첩:1,  p:0,h:0,c:1,k:0 },
+  // ── 벙커링 ──────────────────────────────────────────────────
+  { name:"벙커링 운영준비 확장전략",                 사업:"벙커링",  조직:"전략본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  // ── 기타 · 재무본부 ─────────────────────────────────────────
+  { name:"SKA UPP 구조개편",                        사업:"기타",    조직:"재무본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"안정적 재무건전성 유동성 관리",              사업:"기타",    조직:"재무본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"GPS 지분매각 기업가치 제고",                사업:"기타",    조직:"재무본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"AI 기반 업무생산성 개선",                  사업:"기타",    조직:"재무본부",       중첩:1,  p:0,h:0,c:0,k:1 },
+  // ── 기타 · 전략본부 ─────────────────────────────────────────
+  { name:"SWAN 3.0 수립",                           사업:"기타",    조직:"전략본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"AI Vision 2030",                          사업:"기타",    조직:"전략본부",       중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"전사 통합수익 극대화",                     사업:"기타",    조직:"전략본부",       중첩:3,  p:1,h:0,c:1,k:1 },
+  { name:"우호적 환경조성",                         사업:"기타",    조직:"전략본부",       중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"ESG 경영체계 내실화",                     사업:"기타",    조직:"전략본부",       중첩:2,  p:0,h:1,c:0,k:1 },
+  { name:"탄소배출권 AI모델 개발",                   사업:"기타",    조직:"전략본부",       중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"Zero-Based Budgeting",                    사업:"기타",    조직:"전략본부",       중첩:1,  p:0,h:0,c:1,k:0 },
+  // ── 기타 · 기술인프라본부 ───────────────────────────────────
+  { name:"SHE Master plan 실행",                    사업:"기타",    조직:"기술인프라본부", 중첩:4,  p:1,h:1,c:1,k:1 },
+  { name:"전사 신규사업 기술검토 EPC",                사업:"기타",    조직:"기술인프라본부", 중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"사업장 Net Zero 추진",                    사업:"기타",    조직:"기술인프라본부", 중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"AI DT Quick Win",                         사업:"기타",    조직:"기술인프라본부", 중첩:3,  p:1,h:1,c:0,k:1 },
+  { name:"정보보호 거버넌스 강화",                   사업:"기타",    조직:"기술인프라본부", 중첩:2,  p:1,h:0,c:0,k:1 },
+  // ── 기타 · 사업지원단 ───────────────────────────────────────
+  { name:"우호적 정책환경 조성",                     사업:"기타",    조직:"사업지원단",     중첩:-1, p:1,h:0,c:1,k:0 },
+  // ── 기타 · SKA ──────────────────────────────────────────────
+  { name:"SKA 사업개편 지원",                       사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"SKA UPP 기술지원",                        사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"SKA 사업재편 계획",                       사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"최적 UPP 운영방안",                       사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"Utility 전력비 개선",                     사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+  { name:"정부 금융지원 주주신용 자금조달",            사업:"기타",    조직:"SKA",           중첩:1,  p:0,h:0,c:0,k:1 },
+];
+
+// ══════════════════════════════════════════════════════════════
+//  DETAILS — 과제별 상세 내용
+// ══════════════════════════════════════════════════════════════
+const DETAILS = {
+  "LNG 사업수익 개선 Optionality": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"JKM 6월물 $16.55(+10.3%), 호르무즈 불확실성 지속 속 상방 리스크 확대",
+        text:"JKM 6월물 10.3% 상승($15.00→$16.55). 휴전 연장에도 호르무즈 해협 정상화 지연·남아시아 수요 증가·호주 Ichthys LNG 파업 가능성이 상방 요인. TTF도 14.7% 상승(재고 비축 부담·러시아산 수입 감소). HH는 재고 증가(+96Bcf)로 18개월 최저 수준 약세 → 글로벌과 디커플링. GPS 7월 초까지 재고 안정권 진입, 7~9월 일시 부족 구간 Spot 옵션 협의 중.", source:"4월 27일 주간업무보고 G&P본부" },
+      { date:"2026-04-13", summary:"JKM $16.53, 미-이란 휴전에도 변동성 지속",
+        text:"미-이란 2주 휴전 합의로 JKM 6월물 $16.53으로 하락. 호르무즈 통항 정상화 지연으로 불확실성 지속. GPS '26년 11월 Optionality 잔여 35천톤 모니터링 중(34천톤 완료). TTF도 하락했으나 유럽 재고 28.9% 수준으로 향후 변동성 재확대 가능." }
+    ],
+    summary: "LNG 소싱·판매 시 다양한 선택권(Optionality)을 확보해 시장 변동성을 수익 기회로 전환. 단순 도입→판매보다 Optionality 구조로 고부가가치 창출.",
+    target: ["'26년 Optionality Value 515억원 창출", "소싱·판매 양방향 Optionality 계약 확대"],
+    milestones: [
+      {q:"1Q", t:"소싱 Optionality 발굴 및 계약 추진"},
+      {q:"2Q", t:"판매 Optionality 실행"},
+      {q:"3Q", t:"중간 성과 점검"},
+      {q:"4Q", t:"연간 515억 목표 달성 확인"}
+    ],
+    risks: ["LNG 시장 변동성 예측 어려움", "상대방 협상력 한계"],
+    related: ["LNG 신규수요 개발", "전사 통합수익 극대화"]
+  },
+  "LNG 신규수요 개발": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"KET #3 Tank Cool-down·LNG Filling 핵심 공정 완료, 증자 850억 KNOC 이사회 통과",
+        text:"KET #3 LNG 탱크 Cool-down 완료 후 LNG Filling(2.5m, 약 5.2천톤) 진행 — 핵심 공정 성공적으로 마무리. 차주 LP Pump Test 및 추가 Filling(5m) 완료 시 정상 운영 전환 가능. Loss 최소화(계획 500톤→실적 161톤), EPC 의존 없이 자체 인력 수행. 6월까지 준공 완료 예정. KET 증자(850억원) KNOC 이사회 4/24 통과, 4/29 KET 이사회 상정, 6/8 납입 예정.", source:"4월 27일 주간업무보고 G&P본부" },
+      { date:"2026-04-13", summary:"한주 19만톤 LNG 개별요금제 협의, 한화임팩트 구조적 제약 확인",
+        text:"한주: 약 19만톤 LNG 도입 검토, 개별요금제 협의 중 → 전쟁 이후 장기계약 지연 움직임, 적기 진입 유도 예정. 한화임팩트: HRSG 설치 시 스팀 공급 과잉 구조적 제약 확인 → 폐열 활용 대안 협의 예정. 롯데이네오스: '27년 터미널 이전 검토 중 → C3 Blending Spec 안정성 개선으로 설득 추진." }
+    ],
+    summary: "#5탱크 FID(최종투자결정)로 LNG 저장·공급 능력 확대. Anchor Tenant(대형 수요처) 및 소규모 이용자 신규 확보.",
+    target: ["#5탱크 FID 결정", "Anchor Tenant 1건 이상 계약", "소규모 LNG 이용자 신규 확보"],
+    milestones: [
+      {q:"1Q", t:"#5탱크 FID 준비 및 타당성 검토"},
+      {q:"2Q", t:"FID 결정 및 Anchor Tenant 협의"},
+      {q:"3Q", t:"Anchor Tenant 계약 체결"},
+      {q:"4Q", t:"소규모 이용자 확대"}
+    ],
+    risks: ["FID 투자비 조달 부담", "Anchor Tenant 협상 지연", "수요 예측 불확실성"],
+    related: ["LNG Operation 최적화 EPC", "KOGAS 환상망 연결", "KAM 통한 Value 창출"]
+  },
+  "LNG Operation 최적화 EPC": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"LNG 수급모델 데이터 연계 진행, Platts LNG Daily 라이선스 확보",
+        text:"S&P Global, WoodMac 핵심 데이터 연계 진행, Platts LNG Daily 라이선스 확보 완료. 시나리오 연계 파라미터 등 고난이도 영역 요구사항 검토 완료 예정. 4/6 C-team Weekly부터 MI팀이 LNG 수급모델 직접 활용하여 기초자료 산출 시작." }
+    ],
+    summary: "AI 스케줄러로 LNG 입항·하역·출하 스케줄 자동 최적화. '26년 Beta 구축 목표. Cool-down 리스크 예방 포함.",
+    target: ["LNG 수요 통합 AI 스케줄러 Beta 구축", "Cool-down 리스크 최소화", "EPC 운영 효율화"],
+    milestones: [
+      {q:"1Q", t:"데이터 수집 및 스케줄 최적화 요건 분석"},
+      {q:"2Q", t:"AI 스케줄러 Beta 구축"},
+      {q:"3Q", t:"시범 운영 및 성과 검증"},
+      {q:"4Q", t:"정식 운영 및 연간 성과 측정"}
+    ],
+    risks: ["데이터 품질 문제 (레거시 시스템 통합)", "AI 모델 정확도 한계"],
+    related: ["AI Vision 2030", "LNG 신규수요 개발"]
+  },
+  "美ESS 롯데SK에너루트": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"울산1호 4/12 상업운전 개시, 1Q 매출 128.6억",
+        text:"울산1호 연료전지 4/12 상업운전 개시 → 본격 매출 창출 단계 진입. 울산1·2호 보증효율 상회(약 50% 내외) 안정 운영. 3월 누계 매출 128.6억원, 세전이익 18.2억원 달성. 울산3호·태화 Site 계획 대비 조기 시운전 준비 착수. 여수 열병합 등 신규 사업 병행 검토." }
+    ],
+    summary: "미국 텍사스 ESS(에너지저장장치) 사업 — Great Kiskadee ESS 프로젝트. 롯데·SK에너루트 합작. Raven PF(프로젝트파이낸싱) Closing 추진 중.",
+    target: ["Raven PF Closing 완료", "Great Kiskadee ESS 상업운전 개시"],
+    milestones: [
+      {q:"1Q", t:"PF Closing 서류 준비"},
+      {q:"2Q", t:"PF Closing 완료"},
+      {q:"3Q", t:"ESS 건설 및 시운전"},
+      {q:"4Q", t:"상업운전 개시 및 수익 창출"}
+    ],
+    risks: ["미국 금리 환경 변화", "파트너사(롯데) 조율", "텍사스 전력시장 규제 변화"],
+    related: ["안정적 재무건전성 유동성 관리"]
+  },
+  "KAM 통한 Value 창출": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"한주 19만톤 LNG 협의, 롯데이네오스 이탈 리스크 대응 추진",
+        text:"한주: 약 19만톤 LNG 도입 검토, 개별요금제 협의 중. 롯데이네오스: 환상망 가격 상승 리스크로 '27년 터미널 이전 검토 → C3 Blending Spec 안정성 개선으로 잔류 설득 추진. 한화임팩트: 구조적 제약(스팀 과잉) 해소 대안 협의 예정. 전쟁 이후 장기계약 지연 움직임 — MI 기반 적기 진입 유도." }
+    ],
+    summary: "핵심 LNG 고객사 전담 관리 KAM(Key Account Management) 체계 구축. 단순 물량 공급 → 솔루션 파트너로 진화해 장기 계약·추가 수익 창출.",
+    target: ["KAM 전담 체계 구축 (담당자 지정, 관계 관리 시스템)", "기존 고객 추가 서비스·계약 확장", "신규 장기 계약 체결"],
+    milestones: [
+      {q:"1Q", t:"KAM 대상 고객 선정 및 전담 체계 구축"},
+      {q:"2Q", t:"고객별 맞춤 제안 및 추가 계약 협의"},
+      {q:"3Q", t:"중간 성과 점검 (계약 건수·물량)"},
+      {q:"4Q", t:"연간 Value 창출 성과 결산"}
+    ],
+    risks: ["고객사 탈LNG 움직임→장기 계약 난도 상승", "KAM 전담 인력 역량 부족", "경쟁사(KOGAS, 민간 트레이더) 공세"],
+    related: ["LNG 신규수요 개발", "LNG 사업수익 개선 Optionality", "KOGAS 환상망 연결"]
+  },
+  "에탄사업 제도개선 CEC 공동투자": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"CEC 분할 SKA 합병 이후 재추진 결정, 에탄 FEED 3개 Case 비교 검토 중",
+        text:"CEC 물적 분할은 SKA 합병 일정 중복 시 반대 주주 주매청 행사 증가 우려로 SKA 합병 이후 재추진 의사결정(4/21). 에탄 FEED: 에탄 전용·에탄/LNG 겸용·에탄/LPG 겸용 3개 Case 비교 검토 구체화 중. SKEE와 에탄/LNG 겸용 용역 범위·비용·일정 협의 진행. 발전용 에탄 LCA 용역 계약 진행 중(한국에너지기술연구원). 전력연구원과 5/13 에탄 실증 논의 예정.", source:"4월 27일 주간업무보고 전략본부·기술인프라본부" },
+      { date:"2026-04-13", summary:"CEC 물적 분할 해수부 인가 불필요 확인, 에탄 FEED 방향 확정",
+        text:"CEC 물적 분할: UPA 측 해수부 인가 불필요 확인(4/8) → 분할 후 신설법인 설립 절차 간소화. 7월 이사회 의결 목표로 분할계획서 준비 중. 에탄 FEED: 신규 탱크 기준 추진 방향 확정, LNG 전환 가능성 고려한 Spec 반영. INEOS와 JV 관심 확인 — upfront cash 최소화 방식으로 협의 지속." }
+    ],
+    summary: "에탄 사업 관련 제도 개선 추진 및 CEC 공동투자 검토. ⚠️ CEC의 구체적 정의·내용·투자 구조는 내부 문서 추가 확인 필요.",
+    target: ["미확인 — 내부 KPI 문서 기반으로 보완 필요"],
+    milestones: [],
+    risks: ["미확인"],
+    related: ["CEC 최적 EPC 운영", "SWAN 3.0 수립", "우호적 환경조성"]
+  },
+  "CEC 최적 EPC 운영": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"KET #3 핵심 공정 완료, CEC 2단계 운영인력 6명 확정(5/6 입사)",
+        text:"KET #3 Tank Cool-down·LNG Filling(2.5m, 5.2천톤) 성공적 마무리. Loss 최소화(계획 500톤→실적 161톤). 차주 LP Pump Test 및 Filling(5m) 후 정상 운영 전환 전망. CEC-KET 연계운전 HAZOP Review 완료(4/24). CEC 2단계 가동 준비: 계약직 운영인력 6명 확정, 5/6 입사 예정. CEC 분할 회계/세무 검토는 SKA/UPP 구조개편 고려로 분할 추진 시기 '27년 이후 조정.", source:"4월 27일 주간업무보고 G&P본부·기술인프라본부" },
+      { date:"2026-04-13", summary:"KET #3 시운전 본격화, 4/17~20 Tank Cool-down",
+        text:"KET #3 LNG 탱크 Warm Gas N₂ 치환 개시(4/9), 4/14 완료 예정. 4/17~20 Tank Cool-down 핵심 공정 집중 관리. 냉열 공급설비 이사회 보고 6월 말 목표 — 4월 말까지 실 투자비 산정 Fast-track 추진 중. LPG Coolant 사업·Blending 등 Value-up 과제 병행." }
+    ],
+    summary: "CEC 관련 EPC(설계·조달·시공) 최적 운영 추진. ⚠️ CEC의 구체적 정의·위치·사업 구조는 내부 문서 추가 확인 필요.",
+    target: ["미확인 — 내부 문서 확인 후 보완 필요"],
+    milestones: [],
+    risks: ["미확인"],
+    related: ["에탄사업 제도개선 CEC 공동투자", "전사 신규사업 기술검토 EPC"]
+  },
+  "KOGAS 환상망 연결": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"평택기지 배관 압력 이슈, 동절기 공급 상세 협의 합의",
+        text:"중동산 LNG 수급 이슈 확대 속 KOGAS 동절기(10월~) 공급 기회 부상. 평택기지-KOGAS 간 지상 배관 압력 이슈 확인 → 하절기 이후 동절기 상세 제안 및 협의 합의. 경쟁사는 재고이연 조건으로 5~12월 1만톤/월 공급 합의 탐문 — 당사 적기 대응 필요." }
+    ],
+    summary: "KOGAS 전국 LNG 파이프라인 환상망에 SK가스 터미널 연결. 공급 범위 확대 및 공급 유연성 강화. 인허가·협의 진행 중.",
+    target: ["환상망 연결 인허가 확보", "연결 공사 착수 및 완료"],
+    milestones: [
+      {q:"1Q", t:"인허가 협의 및 KOGAS 협상"},
+      {q:"2Q", t:"착공"},
+      {q:"3Q", t:"공사 진행"},
+      {q:"4Q", t:"연결 완료"}
+    ],
+    risks: ["인허가 지연", "KOGAS와의 협상 복잡성", "공사비 상승"],
+    related: ["LNG 신규수요 개발", "KAM 통한 Value 창출"]
+  },
+  "프로판 Biz Re-Design": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"강원/충청권 N/W 최적화 진행, B/L 수송체계 전환 협의 중",
+        text:"강원(벌크 사업자)·충청권(용기 유통사업자) 중심 N/W 운영 최적화 진행. 수도권 남부·강원권 Hub 충전소 기반 B/L 수송체계 전환 수송 프로세스 및 요율 협의 중. SCM 자동화: 주문-배송-납품 자동화 신뢰도 확보 위한 스마트미터 이상감지 기준 수립 중. 강원-동해와 코스모 중심 통합(7/1목표). C4 누적 211.8천톤(전년비 +17.3천톤).", source:"4월 27일 주간업무보고 EcoEnergy본부" },
+      { date:"2026-04-13", summary:"wego Inside 13건(4,930톤) 창출, 권역별 NW 최적화 실행 중",
+        text:"wego inside: 13개소 대상 4,930톤/년 신규 거래 창출(별도 투자 없이). 권역별 NW 최적화: 소유 38개 중 13개소 실행 중(충청·강원 권역 협의 중). 수송체계 재편: 수송사→충전소 중심 전환 추진. SCM 자동화·주문 자동화 위한 스마트미터 데이터 정제 중." }
+    ],
+    summary: "LPG 프로판 사업을 4개 권역 Hub 중심으로 재설계. wego Inside 시스템 도입으로 운영 효율화. 판매량 목표 76만톤.",
+    target: ["4개 권역 Hub 구축", "wego Inside 시스템 도입", "판매량 76만톤 달성"],
+    milestones: [
+      {q:"1Q", t:"Hub 구조 설계 및 wego Inside 기획"},
+      {q:"2Q", t:"Hub 구축 시작"},
+      {q:"3Q", t:"시범 운영"},
+      {q:"4Q", t:"전면 운영 및 목표 달성 확인"}
+    ],
+    risks: ["Hub 구축 비용 증가", "기존 유통 채널 저항", "wego Inside 시스템 안정화 지연"],
+    related: ["교환 Scheme 변경", "Autogas 확장전략 실행", "TSP Biz 모델업그레이드 LPG 신규수요 개발"]
+  },
+  "Autogas 확장전략 실행": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"현대차 5월 공동 캠페인 협의, 서울용달협회 OCB 포인트 프로그램 5/1 오픈",
+        text:"현대차 지역본부 인센티브 연계 LPG 1톤 트럭·스타리아 공동 캠페인 5월부터 추진 합의. B2B 수요처 발굴 연계 차량 구매 지원 프로그램 도입 긍정 검토. 서울용달협회 OCB 포인트 연계 협회비 납부 프로그램 5/1 서비스 오픈 → 경기용달협회 등 전국 확산 계획. 한농연 '27년 농림부 예산 LPG 화물차 보조금(3백만원) 건의문 제출 예정(~4/29). 동부2충전소(200톤/월)·화순LPG(60톤/월) 협의 진행 중.", source:"4월 27일 주간업무보고 EcoEnergy본부" },
+      { date:"2026-04-13", summary:"경유 급등 활용 1톤 트럭 마케팅, NW 4개소(390톤) 확보",
+        text:"경유 가격 급등 활용: 한농연(1.8만명), 현대기아 대리점 1,239개소, 원콜 플랫폼(6만명) 등 다채널 마케팅 착수. NW확보: 6개소 목표 중 4개(390톤/월) 확보, 동부2충전소·화순LPG 협의 중. Vision AI+충전소 운영 플랫폼 구축 착수(4/3~, 4개월)." }
+    ],
+    summary: "1톤 LPG 트럭 등 Autogas 신규 수요처 발굴, 충전소 6개소 신규 개설. 판매량 목표 71만톤.",
+    target: ["LPG 충전소 6개소 신규 개설", "1톤 트럭 LPG 전환 확대", "판매량 71만톤 달성"],
+    milestones: [
+      {q:"1Q", t:"충전소 부지 선정"},
+      {q:"2Q", t:"충전소 개설"},
+      {q:"3Q", t:"운영 시작 및 수요 확대"},
+      {q:"4Q", t:"연간 판매량 목표 달성"}
+    ],
+    risks: ["전기차 전환 가속화", "충전소 부지 확보 어려움", "정부 LPG 지원 정책 변화"],
+    related: ["Autogas 시장 방어", "TSP Biz 모델업그레이드 LPG 신규수요 개발"]
+  },
+  "TSP Biz 모델업그레이드 LPG 신규수요 개발": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"HH Optionality 실행 +6.6억원, MB 중장기 소싱 5월 초 목표",
+        text:"'26년 5~12월 HH Hedge Optionality Unwind 실행(12KT, +6.6억원). HH Unwind Target($0.5/mmbtu) 도달로 실행, 하절기 강세 전환 시(Target $4/mmbtu) 재진입 계획. MB 소싱: IB 소싱 계약서 검토 중(5월 초 목표). FEI 약세 → 납사대체 경제성 확대로 하절기 SKGC·대한유화 Spot 판매 추진. S-OIL 샤힌PJT 7월 시운전 예상, 납사 공급 협의 개시('26 Q4~'27, 10KT/월).", source:"4월 27일 주간업무보고 EcoEnergy본부" },
+      { date:"2026-04-13", summary:"HDC '28년 기본공급 5KT/월 소싱 완료, 대한유화 배관 협의 중",
+        text:"HDC '28년 기본공급 5KT/월 소싱 완료(+18원/kg), '28년 추가 Optionality 60KT 확보. SKGC 4월 Spot 1KT 판매. 대한유화: 배관 연결 조건부 5~6천톤/월 계약 협의 중, 4월 내 배관 연결 결정 촉구. LGC 추가 Term 공급 추진 중." }
+    ],
+    summary: "납사 대체 LPG Term 계약 확보 (HDC·대한유화·LG화학 대상). TSP(Terminal Service Provider) 비즈니스 모델 고도화.",
+    target: ["납사 대체 Term 계약 1건 이상 체결", "TSP 비즈니스 모델 고도화"],
+    milestones: [
+      {q:"1Q", t:"대상 고객사 협의 시작"},
+      {q:"2Q", t:"Term 계약 체결"},
+      {q:"3Q", t:"공급 시작"},
+      {q:"4Q", t:"성과 측정 및 추가 계약 발굴"}
+    ],
+    risks: ["납사 가격 변동으로 전환 유인 감소", "고객사 의사결정 지연"],
+    related: ["프로판 Biz Re-Design", "안정적 소싱 포트폴리오 Index Hedge"]
+  },
+  "교환 Scheme 변경": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"SKE 수수료 인상 동의 확보, GSC 교환 형평성 협의 중",
+        text:"SKE: '26년 수수료 인상 동의 확보, 매년 생산자 물가지수 반영 추가 협의 중. GSC: 교환 형평성에 따른 판구매 필요성 재강조 협의 중. 4~5월 SKE 가동률 50% 수준 급감 예상 — 4월 통보 공급 물량 준수 Comm. 중." }
+    ],
+    summary: "LPG 봄베(용기) 교환 유통구조 개편으로 효율성 제고 및 비용 절감.",
+    target: ["봄베 교환 유통 구조 개편 완료", "효율화 비용 절감 효과 측정"],
+    milestones: [
+      {q:"1Q", t:"현황 분석 및 개편 방향 수립"},
+      {q:"2Q", t:"개편 방안 확정"},
+      {q:"3Q", t:"시범 운영"},
+      {q:"4Q", t:"전면 적용 및 성과 측정"}
+    ],
+    risks: ["이해관계자 저항 (유통사, 대리점)", "물류 비용 증가 가능성"],
+    related: ["프로판 Biz Re-Design"]
+  },
+  "Autogas 시장 방어": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"경유 동결 속 LPG 경쟁력 강화, 한성특장 제휴 합의",
+        text:"3차 석유 최고가격제 동결(경유 1,923원/ℓ) 속 경유 가격 급등 → LPG 1톤 트럭 상대적 경쟁력 강화. LPG 특장차 업체 한성특장(100대/년) 행복1톤 멤버십 제휴 합의, 전국 상위 특장차 업체 확대 추진. 용달협회 구조적 연대 강화 및 KB국민 화물복지카드 추가 확대 추진." }
+    ],
+    summary: "전기차 확산에 따른 Autogas(LPG차 연료) 시장 축소 대응. 점유율 방어 전략 실행.",
+    target: ["Autogas 시장 점유율 방어", "전기차 확산 대응 방어 전략 실행"],
+    milestones: [
+      {q:"1Q", t:"전기차 전환 속도 분석 및 대응 방안 수립"},
+      {q:"2Q", t:"방어 전략 실행"},
+      {q:"3Q", t:"중간 점검"},
+      {q:"4Q", t:"연간 목표 달성 확인"}
+    ],
+    risks: ["전기차 보급이 예상보다 빠를 경우", "정부 LPG 지원 정책 약화"],
+    related: ["Autogas 확장전략 실행"]
+  },
+  "안정적 소싱 포트폴리오 Index Hedge": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"MB NV '27~'28년 37%대 역대 최저, 하절기 전 중장기 소싱 추진",
+        text:"FEI 소싱 경쟁력 약화 → MB 중장기 소싱 하절기 전 우선 추진. '27~'28년 MB NV 역대 최저 37%대(예상 공헌이익 50원/kg~). 연간 4~5 Cargo MB 소싱 검토 중, T본부 직접 소싱 병행. '27년 1Q MB 물량 확보 위한 본부간 협의 진행 중. '27년 SKGC 상반기 소싱 진행 중(2H Term 12KT/월)." }
+    ],
+    summary: "Aramco CP 기반 LPG 소싱의 가격 리스크를 Index Hedge로 관리. Trading본부·Eco Energy본부 공동 과제. 소싱 포트폴리오 다변화.",
+    target: ["Hedge 비율 목표 달성", "소싱 포트폴리오 다변화"],
+    milestones: [
+      {q:"1Q", t:"헷지 전략 수립"},
+      {q:"2Q", t:"실행"},
+      {q:"3Q", t:"중간 점검"},
+      {q:"4Q", t:"연간 결산"}
+    ],
+    risks: ["MB 변동성 심화", "헷지 비용 증가", "중동 공급 불안정"],
+    related: ["북미 Origination 확장", "PDH SD 고려 MB 최적 대응"]
+  },
+  "북미 Origination 확장": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"북미 NG/NGL 확보 사업모델 CEO 보고 완료(4/23), 프로젝트 착수 결정",
+        text:"SWAN 3.0 핵심과제인 북미 NG/NGL 확보 필요성 및 사업모델 가설 CEO 보고 완료(4/23) → 본격 추진 결정. 하와이 LPG 발전사업은 JERA LNG 발전 대비 LPG 경쟁력 핵심 메시지 정리 중, 6월 내 제안 목표. Torridon Consulting 용역제안서 수취, 계약 조건 추가 논의 중. LPG FSU 기반 기술/경제성 검토 착수 예정.", source:"4월 27일 주간업무보고 전략본부" },
+      { date:"2026-04-13", summary:"하와이 LPG 발전 컨설팅 착수, Pembina '28년 MGC 전환",
+        text:"하와이 LPG 발전: Torridon Consulting 견적 수취 후 그룹사 진행 방안 비교 결정 예정. Pembina '28년 하반기 Handy→MGC 수출 전환 — MGC 운영 기반 인프라 검토 중. 미국 NG/NGL 확보 시 FOB 물량 전환 Optionality 구체화 중. GPS '26년 11월 LPG/LNG Optionality 잔여 35천톤 모니터링(34천톤 완료)." },
+      { date:"2026-03-31", summary:"Baja Gas 105전톤 계약, Altagas 협의 중",
+        text:"[1Q] Baja Gas Ensenada 지역 연간 105전톤 계약 → '26.6월부터 공급 개시. [1Q] Altagas와 LPG Term 구매 계약 협의 중, 별도 VLGC 1카고 CFR 구매 추진. Pembina Term 계약 조기 연장 진행 중." }
+    ],
+    summary: "중동 중심 LPG 소싱에서 탈피, 북미(하와이·멕시코·캐나다)로 소싱 루트 다변화. Altagas REEF(캐나다) · Baja Gas Ensenada 105전톤 계약 추진 중.",
+    target: ["하와이 Pembina Term 계약 조기 연장", "멕시코 Ensenada 공급 개시 (6월~)", "캐나다 Altagas REEF Term 계약 체결"],
+    milestones: [
+      {q:"1Q", t:"Pembina 연장, Baja Gas 105전톤 계약, Altagas 협의"},
+      {q:"2Q", t:"멕시코 공급 개시, 캐나다 계약 확정"},
+      {q:"3Q", t:"하와이 Handy Size 최적화"},
+      {q:"4Q", t:"'27년 Full Capacity 준비 완료"}
+    ],
+    risks: ["파나마 운하 혼잡 → 선복 비용 증가", "FEI 하락 시 마진 축소"],
+    related: ["안정적 소싱 포트폴리오 Index Hedge", "PDH SD 고려 MB 최적 대응"]
+  },
+  "PDH SD 고려 MB 최적 대응": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"중국 PDH 비계획 T/A 가동률 50%대, MB 소싱 기회 포착 중",
+        text:"중동 지정학 불안 및 중국 PDH 다수 비계획 T/A → 가동률 50% 초반 수준 하락 → MB 약세 지속. '27~'28년 NV 37%대 역대 최저 → 하절기 전 MB 중장기 소싱 우선 추진. 효성 매출채권(4/10, 431억원): 6월 이후 공급 Index Mix 협의 중, 4/14 경영층 보고 예정." }
+    ],
+    summary: "PDH(프로판 탈수소화) 공장 정기 점검(SD) 시기에 프로판 수요 감소 → MB 하락 → 저가 소싱 기회 선점 전략.",
+    target: ["PDH SD 스케줄 모니터링 체계 구축", "SD 시기별 MB 최적 대응 매뉴얼 수립", "소싱 비용 절감"],
+    milestones: [
+      {q:"1Q", t:"PDH SD 스케줄 수집 및 MB 영향 분석"},
+      {q:"2Q", t:"대응 매뉴얼 수립 및 실전 적용"},
+      {q:"3Q", t:"중간 성과 점검"},
+      {q:"4Q", t:"연간 결산 및 차년도 전략 수립"}
+    ],
+    risks: ["PDH SD 일정 변경·연장", "중동 공급 변수와 MB 변동 겹칠 경우 복잡성"],
+    related: ["안정적 소싱 포트폴리오 Index Hedge", "북미 Origination 확장"]
+  },
+  "PPA 준비": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"하반기 Spot 최적화 방향 확정, 7월 Optionality+LPG Spot 우선 추진",
+        text:"하반기 7월 Spot 최적화 방향: ① Optionality + LPG Spot → ② LNG Spot(+LNG Term Mix) 순서로 G&P본부·최적화실과 공감대 형성. 4/30 의사결정 예정. LPG Spot 단독 구매는 Merit Order 반영 어려워 제외. 9월 이후 Spot도 동일 Logic으로 월 단위 의사결정. GT 1호기 4,000h·2호기 8,000h 추가 사용 가능 확인.", source:"4월 27일 주간업무보고 GPS발전" },
+      { date:"2026-04-19", summary:"SMP 상한제 지방선거 이후 고시 예정",
+        text:"전력시장 SMP 상한제: 지방선거 이후 고시 예정. 민발전은 소매 대비 동시시행 예상 → 상한가 시행 시 수익성 영향 모니터링 필요. 현재 한전과 직접 공급 방식 협의 중 (구체적 조건 미확인)." }
+    ],
+    summary: "UGPS 발전소 전력을 울산 AI 데이터센터에 직접 공급하는 PPA(전력구매계약) 체결 추진. 한전 경유 없이 직접 공급 시 높은 단가 수취 가능. 4개 회의체 전체 중첩 최우선 과제.",
+    target: ["PPA 계약 체결 (4Q 목표)", "SMP 상한제 영향 분석 및 대응", "직접 공급 규제 환경 확인"],
+    milestones: [
+      {q:"1Q", t:"AI DC 전력 수요 및 공급 가능성 분석"},
+      {q:"2Q", t:"PPA 계약 구조 설계 및 협의"},
+      {q:"3Q", t:"SMP 상한제 고시 후 사업성 재검토"},
+      {q:"4Q", t:"PPA 계약 체결 목표"}
+    ],
+    risks: ["SMP 상한제 시행 시 수익 감소", "직접 PPA 규제 불확실성", "AI DC 투자자 유치 지연"],
+    related: ["손익목표 달성", "발전사업 Option 개발 차액계약", "AI Vision 2030"]
+  },
+  "손익목표 달성": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"BI 결과 GT 1호기 4,000h·2호기 8,000h 추가 사용 가능, GT 2호기 연소기 즉각 정비",
+        text:"Borescope Inspection 결과: GT 1호기(25.4월 교체) 4,000h, 2호기(25.11월 교체) 8,000h 추가 사용 가능. GT 1호기 추석/10월 초 교체, GT 2호기 BI 예정. GT 2호기 5번 연소기 말단부 마모 발견 → 4/25 즉각 정비 착수, 10일 소요 예상(5월 초 법정검사 準 완료). 연료공급계통 열교환기 Leak도 발견, 6월 내 교체 예정(7월 Optionality 차질 없도록). 차주 GT 1호기 단독 운전.", source:"4월 27일 주간업무보고 GPS발전" },
+      { date:"2026-04-19", summary:"1Q 가동율 93.3% 달성 (목표 91.45% 초과)",
+        text:"1Q 가동율 93.3% 달성 — 목표(91.45%) 초과 달성. 설비 건전성 보강 작업 착수 (Nozzle, 입하배관 Insulation, PSV 후단 배관 보강). 2Q PSM 등급심사(5월) 및 그룹 안전진단(8월) 준비 중." }
+    ],
+    summary: "UGPS 발전소 가동율 90% 이상 유지로 수익 극대화. '26.1Q 93.3% 달성 중(목표 91.45% 초과). SMP 하락 환경에서 가동율이 유일한 방어 수단.",
+    target: ["연간 가동율 90% 이상 (경쟁사 3년 평균 87.9% 상회)", "비계획정지율 1.8% 이하"],
+    milestones: [
+      {q:"1Q", t:"가동율 93.3% 달성, 설비 건전성 보강 착수"},
+      {q:"2Q", t:"PSM 등급심사 준비(5월), 그룹 안전진단 준비"},
+      {q:"3Q", t:"그룹 안전진단(8월), 설비 Reliability 보강"},
+      {q:"4Q", t:"연간 가동율 목표 최종 달성, '27년 정비 계획 수립"}
+    ],
+    risks: ["SMP 하락 (△205억원 영향)", "연료비(LNG/LPG) 상승", "Siemens 협력 관계 유지 필요"],
+    related: ["PPA 준비", "발전사업 Option 개발 차액계약", "SHE 실행력 강화"]
+  },
+  "발전사업 Option 개발 차액계약": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"LG화학 경영진 CfD 재고 결정, 현대제철 MOU 체결 요청",
+        text:"계시별 요금제 전환 후 LG화학 경영진이 차액계약 재고 결정 — 당사에 계약 조건 제시 예정. 현대제철: MOU 체결 및 계약물량 先할당 요청. 고유가로 SMP 수준이 높아 당장 계약 추진은 어려운 상황 — 동향 모니터링하며 파트너사 협의 지속." }
+    ],
+    summary: "발전소 수익을 SMP 변동에서 분리해 안정적 수익 보장받는 CfD(차액결제계약) 도입. GPS 지분매각 기업가치 제고에도 기여.",
+    target: ["CfD 계약 구조 설계", "상대방(한전, 수요자) 협의 시작", "SMP 상한제 대응 시나리오 수립"],
+    milestones: [
+      {q:"1Q", t:"CfD 도입 가능성 검토 및 사례 분석"},
+      {q:"2Q", t:"계약 구조 설계 및 상대방 협의"},
+      {q:"3Q", t:"SMP 상한제 고시 후 시나리오 업데이트"},
+      {q:"4Q", t:"CfD 계약 체결 또는 대안 모델 확정"}
+    ],
+    risks: ["국내 CfD 제도 미성숙", "SMP 상한제 시행 시기 불확실", "GPS 지분매각과 타이밍 조율 필요"],
+    related: ["손익목표 달성", "GPS 지분매각 기업가치 제고", "PPA 준비"]
+  },
+  "O/I 실행으로 추가 수익/원가절감": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"하반기 LPG Spot 최적화 방안 검토, LNG/LPG 가중평균 Best 방안",
+        text:"7월초 3.3만톤, 10월 이후 11~12만톤 LPG Spot 구매 필요 → LNG Term+LPG Spot 가중평균이 발전손익 관점에서 Best 방안. MB Mix 방안 7월 물량에 대해 최적화실·LNG Solution실 검토 중. 한전 시장운영처 방문(4/9) — SMP 하락 효과 이해, 제도 개선 지원 입장 확인." }
+    ],
+    summary: "전력시장 실시간 대응, LNG/LPG 혼소 비율 최적화, 예방 정비 강화로 같은 설비에서 더 많은 수익 창출.",
+    target: ["전력시장 실시간 대응 체계 구축", "LNG/LPG 혼소 비율 최적화", "비계획 정지 최소화"],
+    milestones: [
+      {q:"1Q", t:"전력운영 현황 분석 및 개선 과제 도출"},
+      {q:"2Q", t:"시장 대응 체계 개선 및 혼소 최적화 적용"},
+      {q:"3Q", t:"중간 성과 점검"},
+      {q:"4Q", t:"연간 전력운영 성과 결산"}
+    ],
+    risks: ["SMP 상한제 시행 시 고수익 구간 제한", "연료 조달 차질", "설비 노후화"],
+    related: ["손익목표 달성", "PPA 준비", "발전사업 Option 개발 차액계약"]
+  },
+  "SHE 실행력 강화": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"SUPEX SHE Pilot 결과 GPS 체계 상당히 미흡 — 지침·절차·R&R 전면 정비 계획",
+        text:"4/13~15 SUPEX SHE Pilot 진단 Review 완료. GPS SHE 체계·이행 현황이 SUPEX Guide 기준으로 상당히 미흡 확인. 인지조차 못하던 항목도 다수 발견. SHE 체계를 발전업 특성에 맞게 정비, 교육·점검·훈련·보고 등 이행실적 관리 강화 및 조직별 R&R 전면 정비 계획. 5월 PSM 등급심사·4~5월 예방정비·6월 법정검사 등 업무 집중으로 Resource 부족 우려 — SHE실 단기 파견(1명) 추진 중.", source:"4월 27일 주간업무보고 GPS발전" },
+      { date:"2026-04-19", summary:"Borescope Inspection 완료, 도급업체 집중",
+        text:"그룹 SHE 사전진단 완료. 4/13~15 CC 정지 후 Borescope Inspection 실시. 도급업체 안전관리가 현재 최우선 보완 항목 — 8~10월 본 심사 집중 대응 예정." }
+    ],
+    summary: "UGPS 발전소 현장 SHE(안전·보건·환경) 실행력 강화. 도급업체 안전관리가 현재 최우선 과제. 8~10월 SUPEX 본 심사 대응.",
+    target: ["UGPS 현장 SHE 실행 계획 이행", "도급업체 안전관리 강화", "SUPEX 본 심사 대응 (8~10월)"],
+    milestones: [
+      {q:"1Q", t:"SHE 현황 진단 및 개선 계획 수립"},
+      {q:"2Q", t:"도급업체 안전관리 강화 프로그램 실행"},
+      {q:"3Q", t:"SUPEX 본 심사 집중 대응 (8~10월)"},
+      {q:"4Q", t:"연간 SHE 성과 결산"}
+    ],
+    risks: ["도급업체 역량 편차 → 직접 관리 한계", "설비 점검 중 추가 결함 발견 시 일정 지연"],
+    related: ["SHE Master plan 실행", "손익목표 달성"]
+  },
+  "벙커링 운영준비 확장전략": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"Maersk LNG 구매 총괄 방한(4/23), '28년 신조 6척 물량(2.8만톤/년) 실무 협의 착수 합의",
+        text:"Maersk LNG 구매 총괄 방한(4/23) — LNG 벙커링·Bio-LNG 협력 전반 심도 있는 협의. Maersk는 '30년 수요 150만톤/년(→300만톤) 전망, Term 중심 포트폴리오 지향(Spot 10~20%). 초기 협력은 '28년 신조 6척 인도출항 물량(약 2.8만톤/년) 기반, 이후 일반 벙커링 Term 계약으로 확장 공감대 형성. 가격 구조 Brent 연동→JKM Index 선호로 변화 확인. Bio-LNG는 '30년 이후 도입, 아시아 2~3만톤 수준 관심.", source:"4월 27일 주간업무보고 전략본부" },
+      { date:"2026-04-19", summary:"글로벌 해운사 협의 중, TUA/IUA 준비",
+        text:"1st LBV 건조 관리 진행 중. 글로벌 컨테이너사 우선 협의: CMA-CGM, MSC, Maersk, HMM, K-Line 등. Spot 고객 직접 마케팅 및 글로벌 벙커링 트레이더와 협업. SPA 체결, 신규/Spot 수요 대상 공급 방안 검토 중. TUA/IUA 및 부속 합의서 체결 준비 중." }
+    ],
+    summary: "LNG 벙커링(선박 연료 공급) 사업 — 2027년 COD 목표. 자회사 EMFS 추진. LBV(LNG 벙커링 선박) 1st 건조 중, Term 수요 70% 확보 추진. CMA-CGM·MSC·Maersk 등 협의 중.",
+    target: ["1st LBV Term 수요 70% 확보", "2nd LBV 확장 옵션 검토", "최적 JV 구조 확립 및 파트너사 확정"],
+    milestones: [
+      {q:"1Q", t:"글로벌 컨테이너사 Term 수요 협의, 2nd LBV 옵션 분석"},
+      {q:"2Q", t:"Term 수요 70% 확보 목표, JV 구조 확정"},
+      {q:"3Q", t:"LBV 건조 모니터링, Spot 고객 확보"},
+      {q:"4Q", t:"COD 준비 완료 로드맵 점검 ('27 COD 목표)"}
+    ],
+    risks: ["해운사 의사결정 지연 → Term 계약 확보 지연", "2nd LBV 투자 자금 부담", "파트너사 조율 복잡성"],
+    related: ["SWAN 3.0 수립", "LNG 신규수요 개발", "우호적 환경조성"]
+  },
+  "SKA UPP 구조개편": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"PMC와 Base Index 1차 합의, 4/29 조건 구체화 협의·SKA 통합 5/22 이사회 목표",
+        text:"PMC측과 중장기 Base Index 합의: Worst(23~25년 평균), Moderate(Industrial Spread $70, Sales Premium $130, M/A CFR NEA-$30). PwC 통해 10개년 PL·CF 모델링 진행 중. 4/29 PMC CEO 논의: 구조개편 조건 구체화, 6월 이후 UPP 공급비 조정, Mgmt meeting 일정 협의. SKA 통합(5/22 이사회 or 6/15 이전 승인 목표), 5/13 이사회 워크샵 사전 논의 준비. 토지/건물 근저당 등기 완료. 상반기 만기 Credit Line R/O 완료, 시장성 차입 500억 신규 발행 중(300억 완료, 200억 5/4 예정).", source:"4월 27일 주간업무보고 SKA·재무본부·전략본부" },
+      { date:"2026-04-13", summary:"UPP-PMC 2사 통합 우선 검토 합의, AGIC 주식실물 분실 이슈",
+        text:"LYB/PMC와 UPP-PMC 2사 통합 기반 공동구조개편 우선 검토 합의(4/10). 4월 내 투자구조·프로필렌 공급조건 세부 합의, 5월 산업부에 구조개편계획 초안 제출 목표. AGIC Exit: 주식실물 분실 가능성 → 주식병합 2개월 단축 방안 검토 중. SKA 1Q 영업이익 18분기만에 흑자 전환." },
+      { date:"2026-03-28", summary:"구조변경 방향 확정, APOC Put 취소 구조 합의",
+        text:"[3월] 구조변경 방향 확정, 전사 통합운영 준비. APOC 관련 AGIC Exit과 연계된 APOC Put 행사 및 취소 구조 합의/실행. [~2Q] 통합구조·시기 정립 및 세부 계획 수립 진행 중." }
+    ],
+    summary: "SKA(SK Advanced) PDH·UPP 적자 구조 해결. '26년 예상 세전손실 1,434억원. 법인 통합·구조 변경·APOC Put 행사 취소 등 추진. 재무본부 KPI 최고 배점(25점) 과제.",
+    target: ["세전손실 최소화", "SKG 재무 Exposure 최소화", "APOC Put 행사 취소 및 구조 합리화", "UPP 사업구조 합리화"],
+    milestones: [
+      {q:"1Q", t:"구조개편 방향 최종 확정, 법인 통합 준비"},
+      {q:"2Q", t:"사업구조 변경 실행, APOC 계약 정리"},
+      {q:"3Q", t:"구조개편 완료, 통합운영 안정화"},
+      {q:"4Q", t:"연간 손실 목표 이내 관리 확인"}
+    ],
+    risks: ["프로판-프로필렌 스프레드 추가 악화", "채권단·주주 의견 조율 복잡성", "SK그룹 차원 이슈 확대 가능성"],
+    related: ["안정적 재무건전성 유동성 관리", "GPS 지분매각 기업가치 제고"]
+  },
+  "안정적 재무건전성 유동성 관리": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"APOC Put option 환헷지 누적 $110M 완료(평균 1,516원), SKA 500억 차입 진행 중",
+        text:"APOC Put option 환헷지 분할 시행 중 — 누적 $110M(평균환율 1,516원, 수수료 차감 1,509원/$). 회수된 SKA 주식 SKGP→SKG 양도 예정(SPA Draft 작성, 통합 의사결정 시점 align). (7월 초~10월 초) Put 잔여 대금 $129M 회수 및 APOC 주식 이관 예정. SKA 시장성 차입 500억 신규 발행 중(300억 완료, 200억 5/4 예정). IFRS 18 도입: 딜로이트 1차 Field work 진행 중(4/20~4/30). 1Q 잠정실적 공시 생략, 5/15 사업보고서 공시 후 가이드기사 추진.", source:"4월 27일 주간업무보고 재무본부" },
+      { date:"2026-04-19", summary:"SKA Credit Line R/O 완료, 5/13 이사회 워크샵",
+        text:"SKA 유동성: 상반기 만기도래 은행 Credit Line R/O 완료(~6M). SKGP 통합 준비: 이사회 사전 커뮤니케이션 완료(3/30 전략본부 보고), 5/13 이사회 워크샵 보고 예정. SKA 5월 세전이익 -18억 전망 — 대주단 Covenant waiver 요청 검토 중(4/27~30 미팅 조율)." }
+    ],
+    summary: "SK가스 및 자회사(특히 SKA) 현금흐름 관리. SKA 상반기 만기도래 Credit Line R/O 완료(~6M). 5/13 이사회 워크샵 보고 예정.",
+    target: ["SKA 상반기 만기 Credit Line R/O 완료", "전사 부채비율 목표 유지", "SKA 자금건전성 모니터링 체계 구축"],
+    milestones: [
+      {q:"1Q", t:"Credit Line 확보 및 단기 유동성 점검"},
+      {q:"2Q", t:"SKA 유동성 집중 관리, 자금 조달 방안 확정"},
+      {q:"3Q", t:"전사 재무건전성 중간 점검"},
+      {q:"4Q", t:"연간 재무건전성 결산 및 차년도 계획"}
+    ],
+    risks: ["SKA 5월 손익 급락 (-18억)", "대주단 Covenant waiver 검토 필요", "금리 상승 시 Credit Line 비용 증가"],
+    related: ["SKA UPP 구조개편", "GPS 지분매각 기업가치 제고"]
+  },
+  "GPS 지분매각 기업가치 제고": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"5월 말 closing 목표, PF 대주단 Waiver 쟁점 협의 중",
+        text:"GPS 지분매각 5월 말 closing 목표로 PF 대주단 waiver 작업 지속. 법무법인 간 합의 가능사항·쟁점사항 정리 중. 출자자약정 승계합의서·후순위채권자 확약서 등 주요 문건 세부 조건 협의. 금주 중 주요 내용 합의 목표. 1Q 잠정실적 공시 생략, 5/15 사업보고서 공시 후 NDR(5/18~20일) 실시 예정.", source:"4월 27일 주간업무보고 재무본부" },
+      { date:"2026-04-19", summary:"Webinar 4/27, NDR 5/6~8 예정",
+        text:"전략본부 수익 44M → 63M 개선 (GPS 관련 기여). Webinar 1~4번기 준비 완료 → 4/27 실시 예정. NDR 진행 중 (전략본부 GPIR 대화록 연계, 5/6~8 예정)." }
+    ],
+    summary: "GPS(울산 발전 자회사) 지분 매각 통한 자금 확보. Webinar 1~4번기 4/27 예정, NDR 5/6~8 예정. 전략본부 수익 44M → 63M 개선 목표.",
+    target: ["GPS 지분매각 Webinar 완료 (1~4번기)", "NDR 추진 및 잠재 투자자 네트워크 구축", "매각 Closing (4Q 목표)"],
+    milestones: [
+      {q:"1Q", t:"기업가치 평가 및 매각 구조 설계"},
+      {q:"2Q", t:"Webinar 완료, 잠재 투자자 LOI 확보"},
+      {q:"3Q", t:"본입찰 및 우선협상대상자 선정"},
+      {q:"4Q", t:"지분 매각 Closing 목표"}
+    ],
+    risks: ["SMP 상한제 시행 시 GPS 가치 하락", "글로벌 금리 高 → 인프라 밸류에이션 하락", "매각 지연 시 유동성 계획 차질"],
+    related: ["안정적 재무건전성 유동성 관리", "발전사업 Option 개발 차액계약", "손익목표 달성"]
+  },
+  "SWAN 3.0 수립": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"북미 NG/NGL 사업모델 CEO 보고 완료(4/23), 프로젝트 본격 착수 결정",
+        text:"SWAN 3.0 핵심과제인 북미 NG/NGL 확보 Why/What/How 가설·추진방안 CEO 보고 완료(4/23) → 본격 추진 결정. 하와이 LPG 발전사업: JERA LNG 대비 LPG 경쟁력·하와이 내수 단가 인하·암모니아 겸용 인프라 청정연료 전환 용이성 핵심 메시지로 6월 내 제안 목표. 에탄 사업은 INEOS 협력 포함 사업개발·제도개선 병행 추진 중. ZBB 프로젝트 최종보고(4/20) 후 후속 워크샵(예산 집행률 검증·관리체계 고도화·예비비 기준 정립) 전환.", source:"4월 27일 주간업무보고 전략본부" },
+      { date:"2026-04-13", summary:"북미 NG/NGL·하와이 LPG 발전 우선 검토, INEOS JV 관심",
+        text:"SWAN 3.0 지향점 구체화 — 북미 NG/NGL Play와 하와이 LPG 발전 사업 우선 검토. INEOS: JV 관심 표명, upfront cash 최소화 방식(Deferred payment 등) 협의 희망. 하와이 LPG 발전: Torridon Consulting 견적 수취 후 그룹사 진행 방안 비교 결정 예정. 미국 NG/NGL 확보 시 FOB 물량 전환 Optionality 구체화 중." }
+    ],
+    summary: "SK가스 5~10년 중장기 전략 SWAN 3.0 설계. 에탄·수소·전력·AI 신규 영역 Long List 도출. '26년 4Q 선포식 목표. 에탄 사업 Pivoting 결정이 핵심 마일스톤.",
+    target: ["SWAN 3.0 Long List 도출", "에탄 사업 Pivoting 결정", "중장기 성장방향 전략 구체화", "4Q 선포식"],
+    milestones: [
+      {q:"1Q", t:"전사 LPG/LNG Position 분석, 핵심 추진과제 수립"},
+      {q:"2Q", t:"에탄 사업 Pivoting 결정"},
+      {q:"3Q", t:"Long List 완성, Financial 목표 도출"},
+      {q:"4Q", t:"SWAN 3.0 선포식"}
+    ],
+    risks: ["에탄 FID 시기 시황·자금에 따라 지연", "전략이 이상적으로 흘러 실행 가능성 낮아질 리스크"],
+    related: ["AI Vision 2030", "벙커링 운영준비 확장전략", "에탄사업 제도개선 CEC 공동투자"]
+  },
+  "AI Vision 2030": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"전사 18개 AI KPI 초안 완료, S&P·WoodMac 데이터 연계 진행",
+        text:"전사 18개 AI 과제 KPI 및 Formula 초안 수립 완료 → 각 본부 논의 착수. S&P Global, WoodMac 핵심 데이터 연계 진행, Platts LNG Daily 라이선스 확보. Position Play: Spread 패턴 기반 구조적 포지션 기회 탐지 1차 개발 완료 및 테스트 환경 전환. 재무본부 이상거래 탐지 및 Eco Energy SR AI Assistant('26.10 오픈 목표) 착수." }
+    ],
+    summary: "SK가스 전사 AI 전환 선언 및 실행 — Trading AI(TAM), LNG AI 스케줄러, Function AI 등 3개 축. '26년 AI Vision 2030 공식 선포 목표.",
+    target: ["Trading AI v1.0 고도화 (TAM 도출 최적화, Risk Management)", "LNG AI 스케줄러 Beta 구축", "본부별 Function AI 2건 이상 실행", "AI Vision 2030 공식 선포"],
+    milestones: [
+      {q:"1Q", t:"Value Chain 연계 AI 목표·과제 수립, MI 속도 6분→5분"},
+      {q:"2Q", t:"Trading AI v1.0 본격 적용, LNG AI 스케줄러 Beta"},
+      {q:"3Q", t:"본부별 Function AI 중간 점검"},
+      {q:"4Q", t:"AI Vision 2030 선포, 전사 AI 역량 평가"}
+    ],
+    risks: ["AI 모델 정확도 한계 → 트레이더 최종 판단 여전히 필수", "데이터 품질 문제 (레거시 시스템 통합)", "내부 신뢰 구축 필요"],
+    related: ["AI DT Quick Win", "AI Transformation Trading DB 지능화", "SWAN 3.0 수립"]
+  },
+  "전사 통합수익 극대화": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"1Q Activity 세전이익 2,089억(목표+795억), 연간 4,513억 전망(목표+1,463억)",
+        text:"'26년 1Q 실적: Activity 세전이익 2,089억(목표 대비 +795억), 재무회계 기준 3,580억. Trading 수익 및 SKA 실적 개선이 주요 기여. 2Q 세전이익 1,192억으로 목표 대비 +1,005억 초과 전망(Trading 수익 확대·SMP 상승·SKA Spread 개선). 연간 세전이익 4,513억(목표+1,463억), 변동성 Range 4,200억~5,200억 예상. Upside: 추가 Trading·SKA Spread·GPS 수익. Downside: 민수 부진·가격 디커플링 리스크.", source:"4월 27일 주간업무보고 전략본부" },
+      { date:"2026-04-13", summary:"1Q 세전이익 3,688억, 4월 Rough cut 목표 대비 +555억",
+        text:"'26년 1Q 재무회계 세전이익 3,688억원(영업이익 2,277억원). 4월 Rough cut 594억원으로 목표 대비 +555억원 초과 전망. 실적 개선 주요 요인: LPG/LNG Biz Trading 수익, GPS 발전량 증가, SKA 스프레드 개선. Paper 관련 이익 1,264억원 포함(평가익 612억/거래익 652억)." }
+    ],
+    summary: "LNG·LPG·Trading 각 사업 포지션을 전사 차원에서 통합 관리해 수익 시너지 창출. 전략본부 수익 44M → 63M 목표의 핵심 레버.",
+    target: ["전사 RM(Risk Management) 최적안 제안 체계 구축", "LPG/LNG 통합 포지션 관리 시스템 운영", "사업부 간 수익 시너지 발굴"],
+    milestones: [
+      {q:"1Q", t:"전사 통합 포지션 현황 분석 및 기회 발굴"},
+      {q:"2Q", t:"통합 RM 체계 구축 및 운영 시작"},
+      {q:"3Q", t:"중간 성과 점검"},
+      {q:"4Q", t:"연간 통합수익 극대화 성과 결산"}
+    ],
+    risks: ["사업부 간 이해충돌 (개별 vs 전사 최적화)", "시황 급변 시 통합 대응 속도 한계"],
+    related: ["AI Vision 2030", "LNG 사업수익 개선 Optionality", "북미 Origination 확장"]
+  },
+  "우호적 환경조성": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"한전 시장운영처 이례적 방문, 에탄 발전용 기후부 대응 지속",
+        text:"한전 시장운영처 현장 방문(4/9) — 민간발전사 방문 이례적. LNG/LPG 겸용 발전 SMP 하락 효과 이해, 제도 개선 지원 입장 확인. 에탄 발전용 제도개선: 기후부 요청 대응 지속, 지멘스 기술 안정성 자료 제공 예정. 한국에너지기술연구원 에탄 LCA 용역 검토 중(5월 착수, 55억원)." }
+    ],
+    summary: "LNG 벙커링·에탄·AI DC 전력 등 신규 사업 추진을 위해 정부·규제기관·지자체와 사전 관계 구축. 규제 산업 특성상 선점이 중요.",
+    target: ["주요 사업 관련 정부·규제 기관 커뮤니케이션 채널 구축", "산업부·기재부 등 주요 부처 협의 진행", "지자체·이해관계자 관계 강화"],
+    milestones: [
+      {q:"1Q", t:"주요 대외 협의 어젠다 선정 및 채널 파악"},
+      {q:"2Q", t:"정부·기관 주요 협의 실행"},
+      {q:"3Q", t:"협의 성과 점검 및 추가 대응"},
+      {q:"4Q", t:"연간 대외 환경조성 성과 결산"}
+    ],
+    risks: ["정치 환경 변화 (선거 이후 정책 방향 변동)", "이해관계자 반발 (지역주민, 환경단체)"],
+    related: ["에탄사업 제도개선 CEC 공동투자", "벙커링 운영준비 확장전략", "SWAN 3.0 수립"]
+  },
+  "SHE Master plan 실행": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"설비안전 O/I팀 5/1 신설 확정, 충전소 안전점검 37/92개소 완료(40%)",
+        text:"SHE실 산하 설비안전 O/I팀 신설 확정, 5/1 팀장·팀원 인사 시행(KET 인력 7/1 이동). 핵심 설비 Risk 선제 관리·비상 시 공급 안정성 확보·중대사고 예방 중심 운영. 수요처 SHE 관리: 충전소 92개소 중 37개소 안전진단 완료(40%). DY SHE 팀 가스수요처(자영·임대) 안전점검 결과 27건 개선사항 확인. 기존 '액법' 관점 → '산업안전보건법' 관점 확장 시사점, 기술인프라본부와 개선방향 검토 예정.", source:"4월 27일 주간업무보고 기술인프라본부" },
+      { date:"2026-04-19", summary:"SUPEX Pilot 4/13~15 완료, 충전소 재검사 중",
+        text:"그룹 SHE 사전진단 완료(SUPEX 주관). SUPEX SHE 수준 Pilot 측정 4/13~15 진행. 최시급 미흡 항목: 도급업체 안전관리 → 8~10월 본 심사 집중 보완 예정. 충전소 재검사: 충전소 49개 중 14개 완료, 산업체 12개 중 2개 완료." }
+    ],
+    summary: "전사 SHE(안전·보건·환경) 마스터플랜 수립 및 실행. SUPEX 심사 대응, 충전소 안전진단 70% 목표. 도급업체 안전관리가 최시급 과제. 4개 회의체 전체 중첩.",
+    target: ["전사 SHE 마스터플랜 수립·이행", "SUPEX Pilot 측정 완료 및 미흡 항목 보완", "충전소 안전진단 70% 완료 (상반기)", "도급업체 안전관리 강화"],
+    milestones: [
+      {q:"1Q", t:"SHE 마스터플랜 수립, SUPEX Pilot 측정 완료"},
+      {q:"2Q", t:"미흡 항목 보완, 충전소 안전진단 70%"},
+      {q:"3Q", t:"도급업체 안전관리 집중 강화"},
+      {q:"4Q", t:"SUPEX 본 심사 대응, 연간 성과 결산"}
+    ],
+    risks: ["도급업체 안전의식·역량 편차 → 직접 관리 한계", "충전소 임시저장설비 안전 기준 강화"],
+    related: ["SHE 실행력 강화", "사업장 Net Zero 추진"]
+  },
+  "전사 신규사업 기술검토 EPC": {
+    recentUpdates: [
+      { date:"2026-04-27", summary:"에탄 FEED 3개 Case 비교 검토, 하와이 LPG 발전 투자비 산정 중",
+        text:"에탄 FEED: 에탄 전용·에탄/LNG 겸용·에탄/LPG 겸용 3개 Case 일정·운영 유연성 비교 구체화. SKEE와 에탄/LNG 겸용 설계 용역 범위·비용·일정 협의 중. 하와이 LPG 발전사업: JERA LNG 대응 인프라 구성·투자비 산정 중, 차주 전략기획실 공유 예정. 5월 말 주정부 제안 목표. 평택기지 준설: 준설선 현장 도착 및 장비 테스트 중, 차주 착공(6월 준공 목표).", source:"4월 27일 주간업무보고 기술인프라본부" },
+      { date:"2026-04-13", summary:"에탄 FEED 방향 확정, 냉열 공급설비 6월 이사회 목표",
+        text:"에탄 신규 탱크 기준 FEED 방향 확정, SKEE와 계약 변경 착수(4/8). 냉열 공급설비: 이사회 보고 6월 말 목표, 4월 말까지 실투자비 산정 Fast-track 추진. 지허브 파형강관 보강공사: SKEP 설계 조직 구성 완료, 공유수면 점용허가 추진 중." }
+    ],
+    summary: "벙커링 LBV, 에탄 CEC 등 신규 사업의 기술적 가능성·EPC 비용 사전 검증. 기술인프라본부가 전사 기술 게이트키퍼 역할.",
+    target: ["주요 신규사업 기술 검토 완료", "EPC 비용 추정 정확도 향상"],
+    milestones: [
+      {q:"1Q", t:"신규사업 기술검토 우선순위 선정"},
+      {q:"2Q", t:"주요 과제 기술 검토 완료"},
+      {q:"3Q", t:"기술 검토 결과 경영진 보고"},
+      {q:"4Q", t:"연간 기술검토 성과 결산"}
+    ],
+    risks: ["신규사업 정보 부족 시 정확도 한계", "기술 검토 기간이 의사결정 속도를 늦출 수 있음"],
+    related: ["벙커링 운영준비 확장전략", "CEC 최적 EPC 운영", "SWAN 3.0 수립"]
+  },
+  "사업장 Net Zero 추진": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"평택기지 ORH 경제성 미흡, Payback 25년 — Net Zero 관점 별도 검토",
+        text:"평택기지 원해수 활용 ORH 설치 F/S 완료: 투자비 251억원, Payback 25년으로 경제성 확보 어려움. ORH 적용 시 CO₂ 배출량 95% 저감 가능 → Net Zero·ESG 관점에서 전략기획실과 별도 검토 협의. 서부발전과 투자비 분담·이용료 조정 등 경제성 개선 가능성 추가 검토 예정." }
+    ],
+    summary: "SK가스 전 사업장 탄소 배출량 단계적 감축 → Net Zero(탄소중립) 달성. 사업장별 베이스라인 측정 → 로드맵 수립 → 단기 감축 실행.",
+    target: ["사업장별 탄소 배출량 베이스라인 측정", "Net Zero 로드맵 수립 및 승인", "단기 감축 과제 실행 (에너지 효율화, 재생에너지)"],
+    milestones: [
+      {q:"1Q", t:"사업장별 탄소 배출량 베이스라인 측정"},
+      {q:"2Q", t:"Net Zero 로드맵 수립 및 승인"},
+      {q:"3Q", t:"단기 감축 과제 중간 점검"},
+      {q:"4Q", t:"연간 탄소 감축 성과 결산"}
+    ],
+    risks: ["감축 비용 증가 → 사업 경쟁력 부담", "탄소배출권 가격 변동성", "재생에너지 전환 속도 vs 비용 균형"],
+    related: ["SHE Master plan 실행", "ESG 경영체계 내실화"]
+  },
+  "AI DT Quick Win": {
+    recentUpdates: [
+      { date:"2026-04-13", summary:"AI 법규관리시스템 2차 Pilot 정확도 95점, 3차 Pilot 예정",
+        text:"기술인프라본부 AI 법규관리시스템 2차 Pilot: 메타데이터 기반 전처리 적용 → 법규-사규-인허가 매핑 정확도 95점(1차 0~95점에서 향상). 일부 일규 해석 오류 잔존 → Human-in-the-Loop 검증 체계 도입. SHE 핵심 법규 대상 3차 Pilot 후 본사 법규관리 업무 단계 적용 예정." }
+    ],
+    summary: "단기간에 성과를 낼 수 있는 AI 디지털 전환 과제를 먼저 실행해 전사 AI 수용성 제고. AI Vision 2030 장기 과제 전의 Quick Win 전략.",
+    target: ["본부별 Quick Win 과제 2건 이상 실행", "업무 효율화 성과 측정 및 공유"],
+    milestones: [
+      {q:"1Q", t:"본부별 Quick Win 과제 선정"},
+      {q:"2Q", t:"과제 실행 및 초기 성과 측정"},
+      {q:"3Q", t:"성과 점검 및 추가 과제 발굴"},
+      {q:"4Q", t:"연간 AI DT Quick Win 성과 결산 및 공유"}
+    ],
+    risks: ["Quick Win 과제 선정 어려움 (효과 크고 빠른 과제 찾기)", "AI 도입 후 실제 활용률 저조 리스크"],
+    related: ["AI Vision 2030", "AI 기반 업무생산성 개선"]
+  }
+};
+
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let activeTab = 'all';
+const TAB_FIELD = { all:null, progress:'p', happiness:'h', cteam:'c', kpi:'k' };
+
+function mainTasks() { return TASKS.filter(t => !t.sub); }
+
+function tabCount(tab) {
+  const f = TAB_FIELD[tab];
+  return f ? mainTasks().filter(t => t[f]).length : mainTasks().length;
+}
+
+function filtered() {
+  const q  = document.getElementById('q').value.trim().toLowerCase();
+  const bz = document.getElementById('fBiz').value;
+  const dv = document.getElementById('fDiv').value;
+  const ov = document.getElementById('fOvlp').value;
+  const tf = TAB_FIELD[activeTab];
+
+  const result = [];
+  TASKS.forEach(t => {
+    if (t.sub) return;
+    if (tf && !t[tf]) return;
+    if (q  && !t.name.toLowerCase().includes(q)) return;
+    if (bz && t.사업 !== bz) return;
+    if (dv && t.조직 !== dv) return;
+    const ovlp = (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0);
+    if (ov && ovlp !== +ov) return;
+    result.push(t);
+    if (t.name === '북미 Origination 확장') {
+      TASKS.filter(s => s.sub && s.조직 === 'Trading본부').forEach(s => result.push(s));
+    }
+  });
+  return result;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════════
+const OC = { 4:'b4', 3:'b3', 2:'b2', 1:'b1' };
+
+function renderUpd(t) {
+  if (t.sub) return '<td></td><td></td>';
+  const d = DETAILS[t.name];
+  if (!d || !d.recentUpdates || !d.recentUpdates.length) {
+    return '<td class="td-upd-date" style="color:#d1d5db">—</td><td class="td-upd-text" style="color:#d1d5db">—</td>';
+  }
+  const u = d.recentUpdates[0];
+  return `<td class="td-upd-date">${u.date}</td><td class="td-upd-text"><span class="upd-dot"></span>${u.summary}</td>`;
+}
+
+function chk(val) {
+  return val
+    ? '<span style="color:#111827;font-size:15px;font-weight:700">✓</span>'
+    : '<span style="color:#d1d5db;font-size:13px">—</span>';
+}
+
+function overlapBadge(t) {
+  const n = (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0);
+  return `<span class="badge obdg ${OC[n]||'bx'}">${n}중첩</span>`;
+}
+
+function render() {
+  const rows = filtered();
+  const tbody = document.getElementById('tbody');
+  const noRes = document.getElementById('noRes');
+  document.getElementById('rCount').textContent = `${rows.filter(r=>!r.sub).length}개 표시 중`;
+
+  if (!rows.length) { tbody.innerHTML = ''; noRes.style.display = 'block'; return; }
+  noRes.style.display = 'none';
+
+  let num = 0;
+  tbody.innerHTML = rows.map(t => {
+    const isSub = t.sub;
+    if (!isSub) num++;
+    const hasDetail = !!DETAILS[t.name];
+    const nameCell = isSub
+      ? `<td class="td-name sub"><span class="sub-arrow">└</span>${t.name}</td>`
+      : `<td class="td-name${hasDetail ? '' : ''}" data-name="${t.name.replace(/"/g,'&quot;')}">${t.name}</td>`;
+    return `<tr class="${isSub ? 'sub-row' : ''}">
+      <td class="td-num">${isSub ? '' : num}</td>
+      ${nameCell}
+      <td>${isSub ? '' : `<span class="stag s-${t.사업}">${t.사업}</span>`}</td>
+      <td class="td-dept">${isSub ? '' : t.조직}</td>
+      <td>${isSub ? '' : overlapBadge(t)}</td>
+      <td class="td-check">${chk(t.p)}</td>
+      <td class="td-check">${chk(t.h)}</td>
+      <td class="td-check">${chk(t.c)}</td>
+      <td class="td-check">${chk(t.k)}</td>
+      ${renderUpd(t)}
+    </tr>`;
+  }).join('');
+}
+
+// ── 패널 ─────────────────────────────────────────────────────
+function openDetail(name) {
+  const task = TASKS.find(t => t.name === name);
+  if (!task) return;
+  const d = DETAILS[name];
+  const meetings = [
+    {f:'p',l:'Progress'},{f:'h',l:'행복경영'},{f:'c',l:'C-team'},{f:'k',l:'KPI'}
+  ].filter(m => task[m.f]).map(m => `<span>${m.l}</span>`).join('&nbsp;·&nbsp;');
+
+  let html = `
+    <button class="panel-close" onclick="closeDetail()">✕</button>
+    <div class="panel-meta">
+      <span class="stag s-${task.사업}">${task.사업}</span>
+      <span style="font-size:12px;color:#6b7280">${task.조직}</span>
+      ${(()=>{ const n=(task.p||0)+(task.h||0)+(task.c||0)+(task.k||0); return n>0?`<span class="badge obdg ${OC[n]||'bx'}">${n}중첩</span>`:''; })()}
+    </div>
+    <div class="panel-title">${name}</div>
+    <div class="panel-meetings">회의체 &nbsp;${meetings || '—'}</div>
+  `;
+
+  if (!d) {
+    html += `<div class="no-detail">상세 내용이 등록되지 않은 과제입니다.</div>`;
+  } else {
+    if (d.recentUpdates && d.recentUpdates.length) {
+      html += `<div class="psec"><h4>Recent Update</h4>${
+        d.recentUpdates.map(u => `<div class="upd-block">
+          <div class="upd-block-date">${u.date}</div>
+          <div class="upd-block-text">${u.text}</div>
+          <div class="upd-block-source">출처: ${u.source || task.조직 + ' 주간업무보고'}</div>
+        </div>`).join('')
+      }</div>`;
+    }
+    if (d.summary) {
+      html += `<div class="psec"><h4>쉽게 이해하기</h4><p>${d.summary}</p></div>`;
+    }
+    if (d.target && d.target.length) {
+      html += `<div class="psec"><h4>'26년 목표</h4><ul>${d.target.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+    }
+    if (d.milestones && d.milestones.length) {
+      html += `<div class="psec"><h4>분기별 마일스톤</h4><table class="ms-table">${
+        d.milestones.map(m=>`<tr><td>${m.q}</td><td>${m.t}</td></tr>`).join('')
+      }</table></div>`;
+    }
+    if (d.risks && d.risks.length) {
+      html += `<div class="psec"><h4>주요 리스크</h4><ul>${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if (d.related && d.related.length) {
+      html += `<div class="psec"><h4>관련 과제</h4><div>${
+        d.related.map(r => {
+          const exists = TASKS.find(t => t.name === r);
+          return exists
+            ? `<span class="rel-tag" onclick="openDetail(this.dataset.n)" data-n="${r.replace(/"/g,'&quot;')}">→ ${r}</span>`
+            : `<span class="rel-tag" style="cursor:default;opacity:.6">→ ${r}</span>`;
+        }).join('')
+      }</div></div>`;
+    }
+  }
+
+  document.getElementById('panelContent').innerHTML = html;
+  document.getElementById('panel').scrollTop = 0;
+  document.getElementById('panelOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail() {
+  document.getElementById('panelOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('panelOverlay')) closeDetail();
+}
+
+// 이벤트 위임 — tbody 클릭 시 td[data-name] 감지
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('tbody').addEventListener('click', function(e) {
+    const td = e.target.closest('td[data-name]');
+    if (td) openDetail(td.dataset.name);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDetail();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
+function initBizCards() {
+  const groups = [
+    { key:'all', label:'전체 과제', cls:'c-all' },
+    { key:'LNG', label:'LNG', cls:'c-lng' },
+    { key:'LPG', label:'LPG', cls:'c-lpg' },
+    { key:'Trading', label:'Trading', cls:'c-trd' },
+    { key:'발전', label:'발전', cls:'c-pwr' },
+    { key:'벙커링', label:'벙커링', cls:'c-bnk' },
+    { key:'기타', label:'기타', cls:'c-etc' },
+  ];
+  document.getElementById('bizCards').innerHTML = groups.map(g => {
+    const n = g.key === 'all' ? mainTasks().length : mainTasks().filter(t => t.사업 === g.key).length;
+    return `<div class="card ${g.cls}" onclick="filterByBiz('${g.key}')">
+      <div class="n">${n}</div><div class="lbl">${g.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function initPrioCards() {
+  const labels = { 4:'최우선', 3:'중요', 2:'모니터링', 1:'본부관리' };
+  document.getElementById('prioCards').innerHTML = [4,3,2,1].map(n => {
+    const cnt = mainTasks().filter(t => (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0) === n).length;
+    return `<div class="pcard" onclick="filterByOvlp(${n})">
+      <span class="badge ${OC[n]}">${n}중첩</span>
+      <div class="pn">${cnt}</div>
+      <div class="plbl">${labels[n]}</div>
+    </div>`;
+  }).join('');
+}
+
+function initDivFilter() {
+  const divs = [...new Set(mainTasks().map(t => t.조직))].sort();
+  const sel = document.getElementById('fDiv');
+  divs.forEach(d => { const o = document.createElement('option'); o.value = o.textContent = d; sel.appendChild(o); });
+}
+
+function initTabCounts() {
+  ['all','progress','happiness','cteam','kpi'].forEach(tab => {
+    document.getElementById('cnt-' + tab).textContent = tabCount(tab);
+  });
+}
+
+function setTab(el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  activeTab = el.dataset.tab;
+  render();
+}
+
+function filterByBiz(biz) {
+  const sel = document.getElementById('fBiz');
+  if (biz === 'all') { sel.value = ''; }
+  else { sel.value = (sel.value === biz) ? '' : biz; }
+  render();
+}
+function filterByOvlp(n) {
+  const sel = document.getElementById('fOvlp');
+  sel.value = (sel.value == n) ? '' : n;
+  render();
+}
+function resetAll() {
+  ['q','fBiz','fDiv','fOvlp'].forEach(id => {
+    const el = document.getElementById(id);
+    el.value = '';
+  });
+  render();
+}
+
+document.getElementById('q').addEventListener('input', render);
+['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
+
+initBizCards(); initPrioCards(); initDivFilter(); initTabCounts(); render();
+</script>
+</body>
+</html>
