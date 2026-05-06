@@ -44,13 +44,23 @@ body {
 .c-bnk { border-color: #0891b2; } .c-bnk .n { color: #0891b2; }
 .c-etc { border-color: #6b7280; } .c-etc .n { color: #6b7280; }
 .priority-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-.pcard {
-  background: white; border-radius: 10px; padding: 12px 16px;
-  flex: 1; min-width: 90px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-  text-align: center; cursor: pointer;
+.org-tabs-row {
+  display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
 }
-.pcard .pn { font-size: 22px; font-weight: 800; margin: 4px 0; }
-.pcard .plbl { font-size: 10px; color: #9ca3af; }
+.org-tab {
+  background: white; border-radius: 10px; padding: 9px 16px;
+  border: none; cursor: pointer; font-size: 12px; font-weight: 600;
+  color: #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  transition: all 0.12s; display: flex; align-items: center; gap: 6px;
+  font-family: inherit; white-space: nowrap;
+}
+.org-tab:hover { background: #f1f5f9; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+.org-tab.active { background: #1e3a5f; color: white; box-shadow: 0 3px 10px rgba(30,58,95,0.3); }
+.org-tab.active .org-cnt { background: rgba(255,255,255,0.2); color: white; }
+.org-cnt {
+  display: inline-block; background: #e5e7eb; border-radius: 10px;
+  padding: 1px 7px; font-size: 10px; font-weight: 700; color: #6b7280;
+}
 .badge { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 11px; font-weight: 700; }
 .b4 { background: #fee2e2; color: #dc2626; }
 .b3 { background: #fed7aa; color: #c2410c; }
@@ -216,12 +226,12 @@ th.update-sub {
     <h1>SK가스 과제통합관리 대시보드</h1>
     <div class="sub">'26년 중점추진과제 전체 현황 — 4개 회의체 통합</div>
   </div>
-  <div class="updated">최종 업데이트<br>2026-04-27</div>
+  <div class="updated">최종 업데이트<br>2026-05-06</div>
 </div>
 
 <div class="main">
   <div class="cards-row" id="bizCards"></div>
-  <div class="priority-row" id="prioCards"></div>
+  <div class="org-tabs-row" id="orgTabs"></div>
   <div class="filter-bar">
     <div class="fg">
       <label>🔍 과제 검색</label>
@@ -388,6 +398,8 @@ const TASKS = [
 const DETAILS = {
   "LNG 사업수익 개선 Optionality": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"JKM 주간 +1.9%($16.87), 7~9월 부족구간 Partial/Swap 대응 검토",
+        text:"JKM 주간 +1.9% 상승($16.55→$16.87), 공급 리스크 하단 지지. 중국은 $16 이하에서만 제한적 구매. GPS 7월 초 재고 안정권 진입, 7~9월 일시 부족 구간은 Optionality 역마진으로 미실시하고 LNG Partial 구매·Swap 중심 대응 검토 중. TTF +2.6% 상승, 비축 지연·저재고 지속. 호르무즈 봉쇄 장기화 우려로 Brent $118.0 급등.", source:"5월 4일 주간업무보고 G&P본부" },
       { date:"2026-04-27", summary:"JKM 6월물 $16.55(+10.3%), 호르무즈 불확실성 지속 속 상방 리스크 확대",
         text:"JKM 6월물 10.3% 상승($15.00→$16.55). 휴전 연장에도 호르무즈 해협 정상화 지연·남아시아 수요 증가·호주 Ichthys LNG 파업 가능성이 상방 요인. TTF도 14.7% 상승(재고 비축 부담·러시아산 수입 감소). HH는 재고 증가(+96Bcf)로 18개월 최저 수준 약세 → 글로벌과 디커플링. GPS 7월 초까지 재고 안정권 진입, 7~9월 일시 부족 구간 Spot 옵션 협의 중.", source:"4월 27일 주간업무보고 G&P본부" },
       { date:"2026-04-13", summary:"JKM $16.53, 미-이란 휴전에도 변동성 지속",
@@ -406,8 +418,12 @@ const DETAILS = {
   },
   "LNG 신규수요 개발": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"KET #3 RRT·BOR 일정 확정, 증자 850억 6/8 납입 예정",
+        text:"KET #3 4/30 기준 5m Filling 완료, 입하-저장-송출 전 과정 운영 가능 상태 확보. 5/11 이후 RRT(Reliability Run Test), 6월 BOR(Boil Off Rate) Test 및 준공 인허가(~6/20) 순차 진행. 잔여 Punch 작업·SKE 배관 연결 병행 추진. KET 증자(850억) 6/8 납입 확정.", source:"5월 4일 주간업무보고 G&P본부" },
       { date:"2026-04-27", summary:"KET #3 Tank Cool-down·LNG Filling 핵심 공정 완료, 증자 850억 KNOC 이사회 통과",
         text:"KET #3 LNG 탱크 Cool-down 완료 후 LNG Filling(2.5m, 약 5.2천톤) 진행 — 핵심 공정 성공적으로 마무리. 차주 LP Pump Test 및 추가 Filling(5m) 완료 시 정상 운영 전환 가능. Loss 최소화(계획 500톤→실적 161톤), EPC 의존 없이 자체 인력 수행. 6월까지 준공 완료 예정. KET 증자(850억원) KNOC 이사회 4/24 통과, 4/29 KET 이사회 상정, 6/8 납입 예정.", source:"4월 27일 주간업무보고 G&P본부" },
+      { date:"2026-04-20", summary:"KET #3 Cool-down 단계 본격 진입, 4/20 완료 목표",
+        text:"KET #3 LNG 탱크 Warm Gas N2 치환 완료 후 4/17부터 Cool-down 본격 진입. 인입배관 Cool-down 완료 후 탱크 내 냉동가스 주입, 약 -150℃까지 냉각 중. 4/20(월) 오후 완료 목표. 향후 LNG Filling 및 Pump Test 단계적 진행 예정.", source:"4월 20일 주간업무보고 G&P본부" },
       { date:"2026-04-13", summary:"한주 19만톤 LNG 개별요금제 협의, 한화임팩트 구조적 제약 확인",
         text:"한주: 약 19만톤 LNG 도입 검토, 개별요금제 협의 중 → 전쟁 이후 장기계약 지연 움직임, 적기 진입 유도 예정. 한화임팩트: HRSG 설치 시 스팀 공급 과잉 구조적 제약 확인 → 폐열 활용 대안 협의 예정. 롯데이네오스: '27년 터미널 이전 검토 중 → C3 Blending Spec 안정성 개선으로 설득 추진." }
     ],
@@ -440,6 +456,10 @@ const DETAILS = {
   },
   "美ESS 롯데SK에너루트": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"GK ESS 5/1 100% 정상화, 에너루트 5/2 한주 Trip으로 일시 S/D",
+        text:"GK ESS 화재(4/23) 후 4/27 제한적 충방전 재개, 5/1부터 100% 정상 운영 중. 보험구조: 설비 손실 최대 $98M·매출손실 $21M 확보. RCA 전문업체 선정, 5월 중 현장 조사 예정. 에너루트 울산1·2호: 5/2 한주 Trip으로 이네오스 전원 공급 중단 → 수소 공급 차질로 전체 S/D 발생. 약 3.6억원 매출 손실 예상. 외부 요인 기인, 수소 재개 후 3일간 순차 재가동 예정.", source:"5월 4일 주간업무보고 G&P본부" },
+      { date:"2026-04-20", summary:"GK ESS 100% 정상 가동, 울산1호 연료전지 4/12 상업운전 개시",
+        text:"GK ESS 4/13 변전소 고압스위치 절연체 수리 완료 후 온라인 복귀, 100% 정상 가동. 셀밸런싱으로 추가 성능 개선 추진 중. Raven PJT CEO 방미 현장 점검: 무사고·예산 내 공사 진행 중, 일부 기자재 납기 지연으로 COD 소폭 지연 예상(시운전 조기 착수로 일정 단축 추진). 롯데SK에너루트 울산1호 연료전지 4/12 상업운전 개시, 본격 수익 창출 단계 진입.", source:"4월 20일 주간업무보고 G&P본부" },
       { date:"2026-04-13", summary:"울산1호 4/12 상업운전 개시, 1Q 매출 128.6억",
         text:"울산1호 연료전지 4/12 상업운전 개시 → 본격 매출 창출 단계 진입. 울산1·2호 보증효율 상회(약 50% 내외) 안정 운영. 3월 누계 매출 128.6억원, 세전이익 18.2억원 달성. 울산3호·태화 Site 계획 대비 조기 시운전 준비 착수. 여수 열병합 등 신규 사업 병행 검토." }
     ],
@@ -472,6 +492,8 @@ const DETAILS = {
   },
   "에탄사업 제도개선 CEC 공동투자": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"에탄 FEED 3개 Case 비교 완료, 한화와 제도개선 공동 추진 착수",
+        text:"에탄 전용·LNG겸용·LPG겸용 3개 Case별 FEED·EPC 기간·투자비·부지 활용성·인허가 종합 검토 완료, 전략팀 공유. LNG겸용이 비용·일정 효율성 우수하나 인허가 난이도·추가 부지 확보 필요. 한화 최고경영진이 에탄 수익성 개선 위한 연료용 사업 확대 지시 → 한화와 공동 제도개선 추진방안 검토 착수. 전력연구원과 5/13 에탄 실증 논의 예정.", source:"5월 4일 주간업무보고 기술인프라본부·전략본부" },
       { date:"2026-04-27", summary:"CEC 분할 SKA 합병 이후 재추진 결정, 에탄 FEED 3개 Case 비교 검토 중",
         text:"CEC 물적 분할은 SKA 합병 일정 중복 시 반대 주주 주매청 행사 증가 우려로 SKA 합병 이후 재추진 의사결정(4/21). 에탄 FEED: 에탄 전용·에탄/LNG 겸용·에탄/LPG 겸용 3개 Case 비교 검토 구체화 중. SKEE와 에탄/LNG 겸용 용역 범위·비용·일정 협의 진행. 발전용 에탄 LCA 용역 계약 진행 중(한국에너지기술연구원). 전력연구원과 5/13 에탄 실증 논의 예정.", source:"4월 27일 주간업무보고 전략본부·기술인프라본부" },
       { date:"2026-04-13", summary:"CEC 물적 분할 해수부 인가 불필요 확인, 에탄 FEED 방향 확정",
@@ -485,6 +507,8 @@ const DETAILS = {
   },
   "CEC 최적 EPC 운영": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"KET #3 RRT·BOR 일정 확정, CEC 2단계 운영인력 5/6 입사",
+        text:"KET #3 4/30 기준 5m Filling 완료, 입하-저장-송출 전 과정 운영 가능 상태 확보. 5/11 이후 RRT, 6월 BOR Test 및 준공 인허가(~6/20) 순차 진행. 잔여 Punch 작업·SKE 배관 연결 병행. CEC 2단계 계약직 운영인력 6명 5/6 입사. CEC 분할 추진 시기 '27년 이후 조정.", source:"5월 4일 주간업무보고 G&P본부·기술인프라본부" },
       { date:"2026-04-27", summary:"KET #3 핵심 공정 완료, CEC 2단계 운영인력 6명 확정(5/6 입사)",
         text:"KET #3 Tank Cool-down·LNG Filling(2.5m, 5.2천톤) 성공적 마무리. Loss 최소화(계획 500톤→실적 161톤). 차주 LP Pump Test 및 Filling(5m) 후 정상 운영 전환 전망. CEC-KET 연계운전 HAZOP Review 완료(4/24). CEC 2단계 가동 준비: 계약직 운영인력 6명 확정, 5/6 입사 예정. CEC 분할 회계/세무 검토는 SKA/UPP 구조개편 고려로 분할 추진 시기 '27년 이후 조정.", source:"4월 27일 주간업무보고 G&P본부·기술인프라본부" },
       { date:"2026-04-13", summary:"KET #3 시운전 본격화, 4/17~20 Tank Cool-down",
@@ -514,6 +538,8 @@ const DETAILS = {
   },
   "프로판 Biz Re-Design": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"4월 누적 C3 311천톤, 코스모 통합 7/1 목표 협의 중",
+        text:"C3 4월 누계 311천톤(목표 대비 14천톤 초과). 강원-동해·코스모 중심 통합 7/1 목표로 협의 중. 수도권 남부·강원권 Hub 충전소 기반 B/L 수송체계 전환 요율 협의 진행. SCM 자동화: 스마트미터 이상감지 기준 수립 완료, 주문-배송 자동화 신뢰도 확보 단계.", source:"5월 4일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-27", summary:"강원/충청권 N/W 최적화 진행, B/L 수송체계 전환 협의 중",
         text:"강원(벌크 사업자)·충청권(용기 유통사업자) 중심 N/W 운영 최적화 진행. 수도권 남부·강원권 Hub 충전소 기반 B/L 수송체계 전환 수송 프로세스 및 요율 협의 중. SCM 자동화: 주문-배송-납품 자동화 신뢰도 확보 위한 스마트미터 이상감지 기준 수립 중. 강원-동해와 코스모 중심 통합(7/1목표). C4 누적 211.8천톤(전년비 +17.3천톤).", source:"4월 27일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-13", summary:"wego Inside 13건(4,930톤) 창출, 권역별 NW 최적화 실행 중",
@@ -532,8 +558,12 @@ const DETAILS = {
   },
   "Autogas 확장전략 실행": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"마르미모터스 5/8 MOU·설문IC 충전소 7월 오픈 예정",
+        text:"마르미모터스(1톤 LPG트럭 정비 전문) 5/8 MOU 체결 예정, 공동 마케팅 채널 확보. 설문IC 신규 충전소 7월 오픈 목표 — 부지 임차 완료, 설비 발주 진행 중. 서울용달협회 OCB 포인트 프로그램 5/1 서비스 오픈, 경기·인천용달협회 확산 협의 중. 현대차 지역본부 공동 캠페인 5월 본격 실행.", source:"5월 4일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-27", summary:"현대차 5월 공동 캠페인 협의, 서울용달협회 OCB 포인트 프로그램 5/1 오픈",
         text:"현대차 지역본부 인센티브 연계 LPG 1톤 트럭·스타리아 공동 캠페인 5월부터 추진 합의. B2B 수요처 발굴 연계 차량 구매 지원 프로그램 도입 긍정 검토. 서울용달협회 OCB 포인트 연계 협회비 납부 프로그램 5/1 서비스 오픈 → 경기용달협회 등 전국 확산 계획. 한농연 '27년 농림부 예산 LPG 화물차 보조금(3백만원) 건의문 제출 예정(~4/29). 동부2충전소(200톤/월)·화순LPG(60톤/월) 협의 진행 중.", source:"4월 27일 주간업무보고 EcoEnergy본부" },
+      { date:"2026-04-20", summary:"CJ프레시웨이 LPG 냉동탑차 전환 MOU 추진, 동부2충전소·화순LPG 협의 중",
+        text:"CJ프레시웨이 냉동탑차 LPG 전환 MOU 추진 중(차량 약 600대 규모, 전환 시 월 400~500톤 수요 예상). 동부2충전소(200톤/월)·화순LPG(60톤/월) 인수 협의 지속. 경유 급등 지속으로 1톤 트럭 전환 문의 주간 100건 이상.", source:"4월 20일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-13", summary:"경유 급등 활용 1톤 트럭 마케팅, NW 4개소(390톤) 확보",
         text:"경유 가격 급등 활용: 한농연(1.8만명), 현대기아 대리점 1,239개소, 원콜 플랫폼(6만명) 등 다채널 마케팅 착수. NW확보: 6개소 목표 중 4개(390톤/월) 확보, 동부2충전소·화순LPG 협의 중. Vision AI+충전소 운영 플랫폼 구축 착수(4/3~, 4개월)." }
     ],
@@ -550,6 +580,8 @@ const DETAILS = {
   },
   "TSP Biz 모델업그레이드 LPG 신규수요 개발": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"KOGAS 도매가 +90원 인상, S-OIL 샤힌PJT 7월 시운전 협의",
+        text:"KOGAS LPG 도매가 5월 +90원/kg 인상(프로판 기준) → 납사대체 경제성 추가 확대. S-OIL 샤힌PJT 7월 시운전 예상, '26 Q4~'27 10KT/월 납사 공급 협의 본격 개시. FEI 약세 지속으로 SKGC·대한유화 하절기 Spot 판매 추진. MB 소싱: IB 계약서 검토 완료, 최종 서명 단계.", source:"5월 4일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-27", summary:"HH Optionality 실행 +6.6억원, MB 중장기 소싱 5월 초 목표",
         text:"'26년 5~12월 HH Hedge Optionality Unwind 실행(12KT, +6.6억원). HH Unwind Target($0.5/mmbtu) 도달로 실행, 하절기 강세 전환 시(Target $4/mmbtu) 재진입 계획. MB 소싱: IB 소싱 계약서 검토 중(5월 초 목표). FEI 약세 → 납사대체 경제성 확대로 하절기 SKGC·대한유화 Spot 판매 추진. S-OIL 샤힌PJT 7월 시운전 예상, 납사 공급 협의 개시('26 Q4~'27, 10KT/월).", source:"4월 27일 주간업무보고 EcoEnergy본부" },
       { date:"2026-04-13", summary:"HDC '28년 기본공급 5KT/월 소싱 완료, 대한유화 배관 협의 중",
@@ -738,6 +770,8 @@ const DETAILS = {
   },
   "벙커링 운영준비 확장전략": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"암스테르담 LNG 벙커링 글로벌 마케팅 컨퍼런스 참석, CMA·MSC 추가 협의",
+        text:"5/6~9 암스테르담 LNG 벙커링 글로벌 마케팅 컨퍼런스 참석 예정. CMA-CGM·MSC 실무진과 Term 물량 추가 협의 기회 활용. Maersk '28년 신조 6척 물량(2.8만톤/년) 실무 협의 후속 자료 준비 중. 1st LBV 건조 일정 이상 무 — COD '27 목표 유지.", source:"5월 4일 주간업무보고 전략본부" },
       { date:"2026-04-27", summary:"Maersk LNG 구매 총괄 방한(4/23), '28년 신조 6척 물량(2.8만톤/년) 실무 협의 착수 합의",
         text:"Maersk LNG 구매 총괄 방한(4/23) — LNG 벙커링·Bio-LNG 협력 전반 심도 있는 협의. Maersk는 '30년 수요 150만톤/년(→300만톤) 전망, Term 중심 포트폴리오 지향(Spot 10~20%). 초기 협력은 '28년 신조 6척 인도출항 물량(약 2.8만톤/년) 기반, 이후 일반 벙커링 Term 계약으로 확장 공감대 형성. 가격 구조 Brent 연동→JKM Index 선호로 변화 확인. Bio-LNG는 '30년 이후 도입, 아시아 2~3만톤 수준 관심.", source:"4월 27일 주간업무보고 전략본부" },
       { date:"2026-04-19", summary:"글로벌 해운사 협의 중, TUA/IUA 준비",
@@ -812,6 +846,8 @@ const DETAILS = {
   },
   "SWAN 3.0 수립": {
     recentUpdates: [
+      { date:"2026-05-04", summary:"에탄 FEED 3개 Case 비교 완료, 하와이 발전 투자비 산정 착수",
+        text:"에탄 전용·LNG겸용·LPG겸용 3개 Case FEED 비교 완료, 전략팀 공유. LNG겸용이 비용·일정 효율 우수하나 인허가 난이도·추가 부지 확보 필요. 하와이 LPG 발전 투자비 산정 착수(Torridon Consulting 협력), 6월 CEO 보고 목표. 북미 NG/NGL 소싱 구조(FOB Optionality) 세부 시나리오 작성 중. 한화와 에탄 관련 제도개선 공동 추진방안 검토 착수.", source:"5월 4일 주간업무보고 전략본부" },
       { date:"2026-04-27", summary:"북미 NG/NGL 사업모델 CEO 보고 완료(4/23), 프로젝트 본격 착수 결정",
         text:"SWAN 3.0 핵심과제인 북미 NG/NGL 확보 Why/What/How 가설·추진방안 CEO 보고 완료(4/23) → 본격 추진 결정. 하와이 LPG 발전사업: JERA LNG 대비 LPG 경쟁력·하와이 내수 단가 인하·암모니아 겸용 인프라 청정연료 전환 용이성 핵심 메시지로 6월 내 제안 목표. 에탄 사업은 INEOS 협력 포함 사업개발·제도개선 병행 추진 중. ZBB 프로젝트 최종보고(4/20) 후 후속 워크샵(예산 집행률 검증·관리체계 고도화·예비비 기준 정립) 전환.", source:"4월 27일 주간업무보고 전략본부" },
       { date:"2026-04-13", summary:"북미 NG/NGL·하와이 LPG 발전 우선 검토, INEOS JV 관심",
@@ -952,6 +988,7 @@ const DETAILS = {
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let activeTab = 'all';
+let activeOrg = null;
 const TAB_FIELD = { all:null, progress:'p', happiness:'h', cteam:'c', kpi:'k' };
 
 function mainTasks() { return TASKS.filter(t => !t.sub); }
@@ -975,6 +1012,7 @@ function filtered() {
     if (q  && !t.name.toLowerCase().includes(q)) return;
     if (bz && t.사업 !== bz) return;
     if (dv && t.조직 !== dv) return;
+    if (activeOrg && t.조직 !== activeOrg) return;
     const ovlp = (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0);
     if (ov && ovlp !== +ov) return;
     result.push(t);
@@ -1148,16 +1186,22 @@ function initBizCards() {
   }).join('');
 }
 
-function initPrioCards() {
-  const labels = { 4:'최우선', 3:'중요', 2:'모니터링', 1:'본부관리' };
-  document.getElementById('prioCards').innerHTML = [4,3,2,1].map(n => {
-    const cnt = mainTasks().filter(t => (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0) === n).length;
-    return `<div class="pcard" onclick="filterByOvlp(${n})">
-      <span class="badge ${OC[n]}">${n}중첩</span>
-      <div class="pn">${cnt}</div>
-      <div class="plbl">${labels[n]}</div>
-    </div>`;
+function initOrgTabs() {
+  const orgs = [...new Set(mainTasks().map(t => t.조직))].sort();
+  document.getElementById('orgTabs').innerHTML = orgs.map(org => {
+    const cnt = mainTasks().filter(t => t.조직 === org).length;
+    return `<button class="org-tab" data-org="${org}" onclick="setOrg('${org}')">
+      ${org} <span class="org-cnt">${cnt}</span>
+    </button>`;
   }).join('');
+}
+
+function setOrg(org) {
+  activeOrg = (activeOrg === org) ? null : org;
+  document.querySelectorAll('.org-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.org === activeOrg);
+  });
+  render();
 }
 
 function initDivFilter() {
@@ -1185,23 +1229,20 @@ function filterByBiz(biz) {
   else { sel.value = (sel.value === biz) ? '' : biz; }
   render();
 }
-function filterByOvlp(n) {
-  const sel = document.getElementById('fOvlp');
-  sel.value = (sel.value == n) ? '' : n;
-  render();
-}
 function resetAll() {
   ['q','fBiz','fDiv','fOvlp'].forEach(id => {
     const el = document.getElementById(id);
     el.value = '';
   });
+  activeOrg = null;
+  document.querySelectorAll('.org-tab').forEach(t => t.classList.remove('active'));
   render();
 }
 
 document.getElementById('q').addEventListener('input', render);
 ['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
 
-initBizCards(); initPrioCards(); initDivFilter(); initTabCounts(); render();
+initBizCards(); initOrgTabs(); initDivFilter(); initTabCounts(); render();
 </script>
 </body>
 </html>
