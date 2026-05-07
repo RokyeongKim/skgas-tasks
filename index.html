@@ -1053,7 +1053,7 @@ function filtered() {
     if (bz && t.사업 !== bz) return;
     if (dv && t.조직 !== dv) return;
     if (activeOrg && t.조직 !== activeOrg) return;
-    const ovlp = (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0);
+    const ovlp = (t.p||0)+(t.h||0)+(t.k||0)+(t.ams ? 1 : 0);
     if (ov && ovlp !== +ov) return;
     result.push(t);
     if (t.name === '북미 Origination 확장') {
@@ -1085,7 +1085,7 @@ function chk(val) {
 }
 
 function overlapBadge(t) {
-  const n = (t.p||0)+(t.h||0)+(t.c||0)+(t.k||0)+(t.ams ? 1 : 0);
+  const n = (t.p||0)+(t.h||0)+(t.k||0)+(t.ams ? 1 : 0);
   return `<span class="badge obdg ${OC[n]||'bx'}">${n}</span>`;
 }
 
@@ -1145,7 +1145,7 @@ function openDetail(name) {
     <div class="panel-meta">
       <span class="stag s-${task.사업}">${task.사업}</span>
       <span style="font-size:12px;color:#6b7280">${task.조직}</span>
-      ${(()=>{ const n=(task.p||0)+(task.h||0)+(task.c||0)+(task.k||0)+(task.ams?1:0); return n>0?`<span class="badge obdg ${OC[n]||'bx'}">${n}</span>`:''; })()}
+      ${(()=>{ const n=(task.p||0)+(task.h||0)+(task.k||0)+(task.ams?1:0); return n>0?`<span class="badge obdg ${OC[n]||'bx'}">${n}</span>`:''; })()}
     </div>
     <div class="panel-title">${name}</div>
     <div class="panel-meetings">회의체 &nbsp;${meetings || '—'}${amsHtml ? '&nbsp;&nbsp;(' + amsHtml + ')' : ''}</div>
@@ -1205,16 +1205,6 @@ function handleOverlayClick(e) {
 }
 
 // 이벤트 위임 — tbody 클릭 시 td[data-name] 감지
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('tbody').addEventListener('click', function(e) {
-    const td = e.target.closest('td[data-name]');
-    if (td) openDetail(td.dataset.name);
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDetail();
-  });
-});
-
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
@@ -1289,10 +1279,18 @@ function resetAll() {
   render();
 }
 
-document.getElementById('q').addEventListener('input', render);
-['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
-
-initBizCards(); initOrgTabs(); initDivFilter(); initTabCounts(); render();
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('tbody').addEventListener('click', function(e) {
+    const td = e.target.closest('td[data-name]');
+    if (td) openDetail(td.dataset.name);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDetail();
+  });
+  document.getElementById('q').addEventListener('input', render);
+  ['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
+  initBizCards(); initOrgTabs(); initDivFilter(); initTabCounts(); render();
+});
 </script>
 </body>
 </html>
