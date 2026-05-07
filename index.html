@@ -1279,18 +1279,16 @@ function resetAll() {
   render();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('tbody').addEventListener('click', function(e) {
-    const td = e.target.closest('td[data-name]');
-    if (td) openDetail(td.dataset.name);
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeDetail();
-  });
-  document.getElementById('q').addEventListener('input', render);
-  ['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
-  initBizCards(); initOrgTabs(); initDivFilter(); initTabCounts(); render();
+document.getElementById('tbody').addEventListener('click', function(e) {
+  const td = e.target.closest('td[data-name]');
+  if (td) openDetail(td.dataset.name);
 });
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDetail();
+});
+document.getElementById('q').addEventListener('input', render);
+['fBiz','fDiv','fOvlp'].forEach(id => document.getElementById(id).addEventListener('change', render));
+initBizCards(); initOrgTabs(); initDivFilter(); initTabCounts(); render();
 </script>
 </body>
 </html>
