@@ -231,6 +231,63 @@ th.ams-header {
 .ams-Discussion  { background: #ccfbf1; color: #0f766e; }
 .ams-Tracking    { background: #dbeafe; color: #1d4ed8; }
 .ams-Monitoring  { background: #ffedd5; color: #c2410c; }
+/* ── Tank Visualization ── */
+.tank-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.tank-legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #6b7280; }
+.tank-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.tank-groups-wrap { display: flex; gap: 20px; flex-wrap: wrap; }
+.tank-group-block { flex: 1; min-width: 180px; }
+.tank-group-label {
+  font-size: 10px; font-weight: 700; color: #6b7280; letter-spacing: .08em;
+  text-transform: uppercase; border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 5px; margin-bottom: 10px;
+}
+.tank-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.tank-card { flex: 1; min-width: 80px; max-width: 130px; display: flex; flex-direction: column; align-items: center; }
+.tank-num { font-size: 10px; font-weight: 700; color: #374151; margin-bottom: 4px; }
+.tank-shape { width: 74px; display: flex; flex-direction: column; align-items: center; }
+.tank-ellipse-top { width: 74px; height: 16px; border-radius: 50%; position: relative; z-index: 2; }
+.tank-mid {
+  width: 74px; min-height: 68px; position: relative; z-index: 1;
+  margin-top: -8px; margin-bottom: -8px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  padding: 12px 5px; gap: 3px;
+}
+.tank-ellipse-bot { width: 74px; height: 16px; border-radius: 50%; position: relative; z-index: 2; }
+.tank-tenant { font-size: 9px; font-weight: 600; color: white; text-align: center; line-height: 1.3; }
+.tank-tenant.potential { color: rgba(255,255,255,0.7); font-style: italic; }
+.ts-op .tank-ellipse-top, .ts-op .tank-ellipse-bot { background: #15803d; }
+.ts-op .tank-mid { background: #16a34a; }
+.ts-tv .tank-ellipse-top, .ts-tv .tank-ellipse-bot { background: #1d4ed8; }
+.ts-tv .tank-mid { background: #2563eb; }
+.ts-cod .tank-ellipse-top, .ts-cod .tank-ellipse-bot { background: #b45309; }
+.ts-cod .tank-mid { background: #d97706; }
+.ts-fid .tank-ellipse-top, .ts-fid .tank-ellipse-bot { background: #b91c1c; }
+.ts-fid .tank-mid { background: #ef4444; }
+.tank-info { margin-top: 8px; text-align: center; width: 100%; }
+.tank-cap { font-size: 10px; font-weight: 700; color: #374151; }
+.tank-cod-lbl { font-size: 9px; color: #6b7280; margin-top: 1px; }
+.tank-sbadge { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 8px; margin-top: 3px; }
+.tsb-op  { background: #dcfce7; color: #15803d; }
+.tsb-tv  { background: #dbeafe; color: #1d4ed8; }
+.tsb-cod { background: #fef3c7; color: #b45309; }
+.tsb-fid { background: #fee2e2; color: #b91c1c; }
+.tank-note-row { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.tank-note-box {
+  background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px;
+  padding: 9px 13px; font-size: 12px; color: #374151; line-height: 1.6;
+}
+.tank-note-title { font-weight: 700; color: #1e3a5f; font-size: 11px; margin-bottom: 3px; }
+.tank-risk-box {
+  background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px;
+  padding: 8px 13px; font-size: 12px; color: #92400e; line-height: 1.5;
+}
+.tank-risk-title { font-weight: 700; color: #c2410c; font-size: 10px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+.tank-update-badge {
+  display: inline-block; background: #fef9c3; border: 1px solid #fde047;
+  color: #854d0e; font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 10px; margin-left: 6px;
+}
 </style>
 </head>
 <body>
@@ -441,16 +498,45 @@ const DETAILS = {
       { date:"2026-04-13", summary:"한주 19만톤 LNG 개별요금제 협의, 한화임팩트 구조적 제약 확인",
         text:"한주: 약 19만톤 LNG 도입 검토, 개별요금제 협의 중 → 전쟁 이후 장기계약 지연 움직임, 적기 진입 유도 예정. 한화임팩트: HRSG 설치 시 스팀 공급 과잉 구조적 제약 확인 → 폐열 활용 대안 협의 예정. 롯데이네오스: '27년 터미널 이전 검토 중 → C3 Blending Spec 안정성 개선으로 설득 추진." }
     ],
-    summary: "#5탱크 FID(최종투자결정)로 LNG 저장·공급 능력 확대. Anchor Tenant(대형 수요처) 및 소규모 이용자 신규 확보.",
-    target: ["#5탱크 FID 결정", "Anchor Tenant 1건 이상 계약", "소규모 LNG 이용자 신규 확보"],
+    summary: "KET·CEC 터미널에 LNG 탱크 5기를 순차 확장 중('26년 #3, '27년 #4, '31년 #5). #1~#2는 안정 운영 중, #3은 '26년 시운전 중. #4(동서발전)는 COD 전으로 수요 ramping 구간, #5는 Anchor Tenant 미확보 상태로 FID 검토 단계. 확정매출 조기확보와 신규 수요처 발굴이 핵심 과제.",
+    target: ["#3 탱크 준공 및 정상 운영 전환(~6월)", "#4 동서발전 수요 ramping 관리(환상망 연결 추진)", "#5 Anchor Tenant 1건 이상 계약·FID 결정"],
     milestones: [
-      {q:"1Q", t:"#5탱크 FID 준비 및 타당성 검토"},
-      {q:"2Q", t:"FID 결정 및 Anchor Tenant 협의"},
-      {q:"3Q", t:"Anchor Tenant 계약 체결"},
-      {q:"4Q", t:"소규모 이용자 확대"}
+      {q:"1Q", t:"#3 Cool-down·LNG Filling 완료 (완료)"},
+      {q:"2Q", t:"#3 RRT·BOR Test 및 준공 인허가 완료 / #5 FID 준비"},
+      {q:"3Q", t:"#3 정상 운영 전환 / #5 Anchor Tenant 협의"},
+      {q:"4Q", t:"#5 FID 결정 / 소규모 이용자 확대"}
     ],
-    risks: ["FID 투자비 조달 부담", "Anchor Tenant 협상 지연", "수요 예측 불확실성"],
-    related: ["LNG Operation 최적화 EPC", "KOGAS 환상망 연결", "KAM 통한 Value 창출"]
+    risks: ["#4 동서발전 신울산발전소 허가 불확실 → '30년 20kl 수요 리스크", "#4 음성#2 HVDC 송전선로 지연으로 환상망 연결 COD '30.02 이연", "#5 Anchor Tenant 확보 없음 — FID 결정 지연 가능", "#5 수요 변수 다수 (한주 장기계약 지연, 한화임팩트 구조적 제약)"],
+    related: ["LNG Operation 최적화 EPC", "KOGAS 환상망 연결", "KAM 통한 Value 창출"],
+    tanks: [
+      {
+        id: 1, group: "KET", cod: "'24.10월", capacity: "100만 톤", status: "op", statusLabel: "운영중",
+        tenants: [{name: "UGPS", type: "anchor"}],
+        note: "'24년 말 상업가동 개시. 약 1.5년간 무사고/무재해 운영 중."
+      },
+      {
+        id: 2, group: "KET", cod: "'24.10월", capacity: "115만 톤", status: "op", statusLabel: "운영중",
+        tenants: [{name: "SK발전", type: "anchor"}, {name: "고려아연", type: "anchor"}, {name: "SK에너지", type: "anchor"}],
+        note: "안정적 운영 중."
+      },
+      {
+        id: 3, group: "KET", cod: "'26.07월", capacity: "105만 톤", status: "tv", statusLabel: "시운전",
+        tenants: [{name: "S-OIL", type: "anchor"}, {name: "벙커링", type: "anchor"}, {name: "소규모 수요처", type: "small"}],
+        note: "'26.04 시운전 후 하반기 이용 개시 예정. S-Oil 샤힌 PJT, 벙커링 등. RRT(5/11~), BOR Test(6월), 준공 인허가(~6/20) 순차 진행 중."
+      },
+      {
+        id: 4, group: "CEC", cod: "'27.07월", capacity: "110만 톤", status: "cod", statusLabel: "COD 전",
+        tenants: [{name: "동서발전", type: "anchor"}],
+        note: "동서발전 울산 내 발전소 수요 확보('22년 임차 계약). 수요 ramping 계획: '27년 6만kl → '28년 7만kl → '29년 10만kl → '30년 신울산발전소 완공 시 20만kl 전량. 환상망 연결(음성#2, +10만kl) 추진 중이나 HVDC 지연으로 연결 COD '30.02 이연.",
+        risk: "신울산발전소('30년 COD 예정) 허가 불확실성 존재 — 미허가 시 '27~'29년 공실분 소송 리스크. 현재 동서발전이 27~29년 비용 보전 의무 있어 하방 제한적이나, 투자회수 지연 리스크 관리 필요. 정기 업데이트 필수."
+      },
+      {
+        id: 5, group: "CEC", cod: "'31(계획)", capacity: "100만 톤", status: "fid", statusLabel: "FID 검토",
+        tenants: [{name: "한주", type: "potential"}, {name: "고려아연", type: "potential"}],
+        note: "Anchor Tenant 미확보 상태. 산업체 수요: 고려아연·한주 외 한화임팩트 등 소형 수요처 마케팅 병행. 발전 수요: 500MW 구역전기 사업 추진. 한주 19만톤 개별요금제 협의 진행 중(장기계약 지연 움직임).",
+        risk: "Anchor Tenant 1건도 확보 안 된 상태 — 수요 확보 시 즉시 업데이트 필요. FID 결정 전제조건: Anchor 계약 체결. 한화임팩트 HRSG 스팀 과잉 구조적 제약 확인됨."
+      }
+    ]
   },
   "LNG Operation 최적화 EPC": {
     recentUpdates: [
@@ -1176,6 +1262,55 @@ function openDetail(name) {
     }
     if (d.risks && d.risks.length) {
       html += `<div class="psec"><h4>주요 리스크</h4><ul>${d.risks.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+    }
+    if (d.tanks && d.tanks.length) {
+      const scMap = {op:'ts-op', tv:'ts-tv', cod:'ts-cod', fid:'ts-fid'};
+      const sbMap = {op:'tsb-op', tv:'tsb-tv', cod:'tsb-cod', fid:'tsb-fid'};
+      const groups = {};
+      d.tanks.forEach(t => { if (!groups[t.group]) groups[t.group] = []; groups[t.group].push(t); });
+      let th = `<div class="psec"><h4>탱크별 수요 현황</h4>
+        <div class="tank-legend">
+          <div class="tank-legend-item"><div class="tank-legend-dot" style="background:#16a34a"></div>운영중</div>
+          <div class="tank-legend-item"><div class="tank-legend-dot" style="background:#2563eb"></div>시운전</div>
+          <div class="tank-legend-item"><div class="tank-legend-dot" style="background:#d97706"></div>COD 전</div>
+          <div class="tank-legend-item"><div class="tank-legend-dot" style="background:#ef4444"></div>FID 검토 (Anchor 없음)</div>
+        </div>
+        <div class="tank-groups-wrap">`;
+      Object.entries(groups).forEach(([grp, tanks]) => {
+        th += `<div class="tank-group-block"><div class="tank-group-label">${grp}</div><div class="tank-row">`;
+        tanks.forEach(t => {
+          const sc = scMap[t.status] || 'ts-op';
+          const sb = sbMap[t.status] || 'tsb-op';
+          const needsUpdate = t.status === 'cod' || t.status === 'fid';
+          const tenHtml = t.tenants.map(tn => `<div class="tank-tenant${tn.type==='potential'?' potential':''}">${tn.name}</div>`).join('');
+          th += `<div class="tank-card">
+            <div class="tank-num">#${t.id}${needsUpdate ? '<span class="tank-update-badge">업데이트 필요</span>' : ''}</div>
+            <div class="tank-shape ${sc}">
+              <div class="tank-ellipse-top"></div>
+              <div class="tank-mid">${tenHtml}</div>
+              <div class="tank-ellipse-bot"></div>
+            </div>
+            <div class="tank-info">
+              <div class="tank-cap">${t.capacity}</div>
+              <div class="tank-cod-lbl">COD ${t.cod}</div>
+              <span class="tank-sbadge ${sb}">${t.statusLabel}</span>
+            </div>
+          </div>`;
+        });
+        th += `</div></div>`;
+      });
+      th += `</div>`;
+      const noteTanks = d.tanks.filter(t => t.note || t.risk);
+      if (noteTanks.length) {
+        th += `<div class="tank-note-row">`;
+        noteTanks.forEach(t => {
+          if (t.note) th += `<div class="tank-note-box"><div class="tank-note-title">#${t.id} ${t.group} — ${t.tenants.map(tn=>tn.name).join(', ')}</div>${t.note}</div>`;
+          if (t.risk) th += `<div class="tank-risk-box"><div class="tank-risk-title">⚠ 리스크</div>${t.risk}</div>`;
+        });
+        th += `</div>`;
+      }
+      th += `</div>`;
+      html += th;
     }
     if (d.related && d.related.length) {
       html += `<div class="psec"><h4>관련 과제</h4><div>${
